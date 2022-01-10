@@ -9,6 +9,5 @@ jobs:
       with:
         java-version: 11
 
-    
     - name: Execute Gradle build
       run: ./gradlew build
