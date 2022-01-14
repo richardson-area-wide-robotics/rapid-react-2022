@@ -3,7 +3,6 @@ package frc.robot.subsystems.drive;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -13,9 +12,6 @@ public class Drive extends SubsystemBase{
   private Encoder rightEncoder;
   private Gearbox leftGearbox;
   private Gearbox rightGearbox;
-  private SpeedControllerGroup leftGearboxController;
-  private SpeedControllerGroup rightGearboxController;
-
   private Gyroscope gyroscope;
   private DifferentialDrive differentialDrive;
 
@@ -23,35 +19,36 @@ public class Drive extends SubsystemBase{
   private double desiredAngle;
 
   //constants
-  private final double P_VALUE = .0025;//.0012
+  private final double P_VALUE = .0025;
+  private final double RAMP_RATE = 1;
+  private final double QUICK_TURN_THROTTLE_DEADZONE = 0.1;
   // left gear box CAN ids
-  private final int LEFT_BACK_CAN_ID = 11;
-  // private final int LEFT_MIDDLE_CAN_ID = 13;
+  private final int LEFT_BACK_CAN_ID = 11; 
   private final int LEFT_FRONT_CAN_ID = 12;
+  private final int LEFT_MIDDLE_CAN_ID = 13;
   // right gear box CAN ids
   private final int RIGHT_BACK_CAN_ID = 4;
-  // private final int RIGHT_MIDDLE_CAN_ID = 6;
   private final int RIGHT_FRONT_CAN_ID = 5;
-  
+  private final int RIGHT_MIDDLE_CAN_ID = 6;
+
   private MotorType DRIVE_MOTOR_TYPE = MotorType.kBrushless;
 
+  private boolean gyroDisabled = true;
+
   public Drive(Gyroscope gyroscope) {
-    leftGearboxController = new SpeedControllerGroup(new CANSparkMax(LEFT_BACK_CAN_ID, DRIVE_MOTOR_TYPE),new CANSparkMax(LEFT_FRONT_CAN_ID, DRIVE_MOTOR_TYPE));
-    rightGearboxController = new SpeedControllerGroup(new CANSparkMax(RIGHT_BACK_CAN_ID, DRIVE_MOTOR_TYPE),  new CANSparkMax(RIGHT_FRONT_CAN_ID, DRIVE_MOTOR_TYPE));
-    
-    this.gyroscope = gyroscope;
     this.leftGearbox = new Gearbox(new CANSparkMax(LEFT_BACK_CAN_ID, DRIVE_MOTOR_TYPE),
-        new CANSparkMax(LEFT_FRONT_CAN_ID, DRIVE_MOTOR_TYPE),
-        leftGearboxController);
+        new CANSparkMax(LEFT_FRONT_CAN_ID, DRIVE_MOTOR_TYPE), new CANSparkMax(LEFT_MIDDLE_CAN_ID, DRIVE_MOTOR_TYPE));
 
     this.rightGearbox = new Gearbox(new CANSparkMax(RIGHT_BACK_CAN_ID, DRIVE_MOTOR_TYPE),
-        new CANSparkMax(RIGHT_FRONT_CAN_ID, DRIVE_MOTOR_TYPE),
-        rightGearboxController);
+        new CANSparkMax(RIGHT_FRONT_CAN_ID, DRIVE_MOTOR_TYPE), new CANSparkMax(RIGHT_MIDDLE_CAN_ID, DRIVE_MOTOR_TYPE));
 
-    differentialDrive = new DifferentialDrive(leftGearboxController, rightGearboxController);
+    this.leftGearbox.setRampRate(RAMP_RATE);
+    this.rightGearbox.setRampRate(RAMP_RATE);
+    
+    differentialDrive = new DifferentialDrive(this.leftGearbox.getSpeedControllerGroup(), 
+                                              this.rightGearbox.getSpeedControllerGroup());
 
-    this.leftGearbox.setRampRate(.5);
-    this.rightGearbox.setRampRate(.5);
+    this.gyroscope = gyroscope;
 
     this.leftEncoder = new Encoder(0, 1);
     this.rightEncoder = new Encoder(2, 3);
@@ -61,38 +58,35 @@ public class Drive extends SubsystemBase{
     rightEncoder.setDistancePerPulse((6.0 * Math.PI) / 2048.0);
   }
 
-  public void setLeftSpeed(double speed) {
-    this.leftGearboxController.set(speed);
+  private void setLeftSpeed(double speed) {
+    this.leftGearbox.setSpeed(speed);
   }
 
-  public void setRightSpeed(double speed) {
-    this.rightGearboxController.set(speed);
+  private void setRightSpeed(double speed) {
+    this.rightGearbox.setSpeed(speed);
   }
 
-  public void curvatureDrive(double throttle, double curvature, boolean isQuickTurn) {
-    differentialDrive.curvatureDrive(throttle, curvature, isQuickTurn);
+  public void arcadeDrive(double throttle, double turnModifier){
+    differentialDrive.arcadeDrive(throttle, turnModifier);
   }
 
-  public void arcadeDrive(double throttle, double turnModifer) { //already tested, gyro is getting correct angle
-    if(turnModifer == 0.0 && throttle != 0.0) { //says if straight is zero and turn is not zero
+  public void curvatureDrive(double throttle, double curvature) {
+    if(throttle != 0.0 && curvature == 0.0 && !gyroDisabled) { //driving straight and no turn
       if(this.desiredAngle == Integer.MAX_VALUE) { //means robot just started driving straight
         this.desiredAngle = gyroscope.getGyroAngle(); 
       }
-      turnModifer = this.getAngularError(desiredAngle); 
+      curvature = this.getAngularError(desiredAngle); 
+      this.setLeftSpeed(-(throttle - curvature));
+      this.setRightSpeed(throttle + curvature);
     }
-    else {
-      this.desiredAngle = Integer.MAX_VALUE; //if turn is greater than 0 or if robot is still 
+    else { // when robot isn't driving straight
+      this.desiredAngle = Integer.MAX_VALUE; //if turn is greater than 0 or if robot is still
+      differentialDrive.curvatureDrive(-throttle, curvature, (Math.abs(throttle) < QUICK_TURN_THROTTLE_DEADZONE));
     }
-    this.setLeftSpeed(-(throttle - turnModifer));
-    this.setRightSpeed(throttle + turnModifer);
   }
 
   public double getAngularError(double desiredAngle) {  
     return  (gyroscope.getGyroAngle() - desiredAngle) * P_VALUE;
-  }
-
-  public void arcadeDrive(DrivingDeltas drivingDeltas) {
-    arcadeDrive(drivingDeltas.getForwardPower(), drivingDeltas.getSteeringPower());
   }
 
   public void resetEncoders() {
@@ -124,5 +118,9 @@ public class Drive extends SubsystemBase{
     double error = getLeftEncoderDistance() - getRightEncoderDistance();
     double turnPower = error * pValue;
     return turnPower;
+  }
+
+  public void gyroDisabled(boolean gyroDisabled) {
+    this.gyroDisabled = gyroDisabled;
   }
 }
