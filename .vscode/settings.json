@@ -12,7 +12,8 @@
     "**/.project": true,
     "**/.settings": true,
     "**/.factorypath": true,
-    "**/*~": true
+    "**/*~": true,
+    "**/.gitignore": true
   },
   "java.test.config": [
     {
