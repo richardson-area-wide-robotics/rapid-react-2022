@@ -4,9 +4,15 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.drivingCommands.ArcadeDriveCommand;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.Gyroscope;
+import frc.robot.operatorInputs.Controls;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -16,8 +22,15 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
  */
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
-
+  private Drive drive;
+  private Gyroscope gyro;
   private RobotContainer m_robotContainer;
+  private Controls driverControls;
+
+ // Constants
+  private final int JOYSTICK_PORT_DRIVER = 1;
+  private final int JOYSTICK_PORT_OPERATOR = 0;
+
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -28,6 +41,9 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+    this.driverControls = new Controls(new Joystick(JOYSTICK_PORT_DRIVER));
+    this.gyro = new Gyroscope();
+    this.drive = new Drive(gyro);
   }
 
   /**
@@ -39,6 +55,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+   
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
