@@ -29,8 +29,6 @@ public class Robot extends TimedRobot {
 
  // Constants
   private final int JOYSTICK_PORT_DRIVER = 1;
-  private final int JOYSTICK_PORT_OPERATOR = 0;
-
 
   /**
    * This function is run when the robot is first started up and should be used for any
