@@ -9,7 +9,7 @@ public class OperatorInputs {
 
   private final double JOYSTICK_DEADZONE = 0.1;
 
-  public OperatorInputs(Controls driverControls, Controls operatorControls, Drive drive) {
+  public OperatorInputs(Controls driverControls, Drive drive) {
 
     // Driver commands
     drive.setDefaultCommand(new RunCommand(() -> {
