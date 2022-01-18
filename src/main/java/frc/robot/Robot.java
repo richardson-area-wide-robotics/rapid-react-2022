@@ -6,13 +6,12 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.drivingCommands.ArcadeDriveCommand;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Gyroscope;
 import frc.robot.operatorInputs.Controls;
+import frc.robot.operatorInputs.OperatorInputs;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -26,6 +25,7 @@ public class Robot extends TimedRobot {
   private Gyroscope gyro;
   private RobotContainer m_robotContainer;
   private Controls driverControls;
+  private OperatorInputs operatorInputs;
 
  // Constants
   private final int JOYSTICK_PORT_DRIVER = 1;
@@ -42,6 +42,7 @@ public class Robot extends TimedRobot {
     this.driverControls = new Controls(new Joystick(JOYSTICK_PORT_DRIVER));
     this.gyro = new Gyroscope();
     this.drive = new Drive(gyro);
+    this.operatorInputs = new OperatorInputs(driverControls, drive);
   }
 
   /**
