@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Gyroscope;
+import frc.robot.commands.drivingCommands.CargoAimCommand;
 import frc.robot.operatorInputs.Controls;
 import frc.robot.operatorInputs.OperatorInputs;
 
@@ -26,6 +27,7 @@ public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
   private Controls driverControls;
   private OperatorInputs operatorInputs;
+  private CargoAimCommand cargoAimCommand;
 
  // Constants
   private final int JOYSTICK_PORT_DRIVER = 1;
@@ -38,11 +40,13 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
+    System.out.println("Testing again...");
     m_robotContainer = new RobotContainer();
     this.driverControls = new Controls(new Joystick(JOYSTICK_PORT_DRIVER));
     this.gyro = new Gyroscope();
     this.drive = new Drive(gyro);
     this.operatorInputs = new OperatorInputs(driverControls, drive);
+    this.cargoAimCommand = new CargoAimCommand(drive, driverControls);
   }
 
   /**
