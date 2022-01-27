@@ -24,6 +24,11 @@ public class CargoAimCommand extends CommandBase{
 
     @Override
     public void execute() {
-        
+        System.out.println("Testing execute");
+    }
+
+    @Override
+    public boolean isFinished() {
+        return false;
     }
 }

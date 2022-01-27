@@ -45,8 +45,9 @@ public class Robot extends TimedRobot {
     this.driverControls = new Controls(new Joystick(JOYSTICK_PORT_DRIVER));
     this.gyro = new Gyroscope();
     this.drive = new Drive(gyro);
-    this.operatorInputs = new OperatorInputs(driverControls, drive);
     this.cargoAimCommand = new CargoAimCommand(drive, driverControls);
+    
+    this.operatorInputs = new OperatorInputs(driverControls, drive, cargoAimCommand);
   }
 
   /**
