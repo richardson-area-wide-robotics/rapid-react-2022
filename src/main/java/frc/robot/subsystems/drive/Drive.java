@@ -8,8 +8,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Drive extends SubsystemBase{
 
-  private Encoder leftEncoder;
-  private Encoder rightEncoder;
   private Gearbox leftGearbox;
   private Gearbox rightGearbox;
   private Gyroscope gyroscope;
@@ -36,26 +34,22 @@ public class Drive extends SubsystemBase{
   private boolean gyroDisabled = false;
 
   public Drive(Gyroscope gyroscope) {
-    this.leftGearbox = new Gearbox(new CANSparkMax(LEFT_BACK_CAN_ID, DRIVE_MOTOR_TYPE),
+    this.leftGearbox = new Gearbox(new Encoder(0, 1), new CANSparkMax(LEFT_BACK_CAN_ID, DRIVE_MOTOR_TYPE),
         new CANSparkMax(LEFT_FRONT_CAN_ID, DRIVE_MOTOR_TYPE), new CANSparkMax(LEFT_MIDDLE_CAN_ID, DRIVE_MOTOR_TYPE));
 
-    this.rightGearbox = new Gearbox(new CANSparkMax(RIGHT_BACK_CAN_ID, DRIVE_MOTOR_TYPE),
+
+    this.rightGearbox = new Gearbox(new Encoder(2, 3), new CANSparkMax(RIGHT_BACK_CAN_ID, DRIVE_MOTOR_TYPE),
         new CANSparkMax(RIGHT_FRONT_CAN_ID, DRIVE_MOTOR_TYPE), new CANSparkMax(RIGHT_MIDDLE_CAN_ID, DRIVE_MOTOR_TYPE));
 
     this.leftGearbox.setRampRate(RAMP_RATE);
     this.rightGearbox.setRampRate(RAMP_RATE);
     
-    differentialDrive = new DifferentialDrive(this.leftGearbox.getMotorControllerGroup(), 
+    this.differentialDrive = new DifferentialDrive(this.leftGearbox.getMotorControllerGroup(), 
                                               this.rightGearbox.getMotorControllerGroup());
 
     this.gyroscope = gyroscope;
 
-    this.leftEncoder = new Encoder(0, 1);
-    this.rightEncoder = new Encoder(2, 3);
-
-    leftEncoder.setDistancePerPulse((6.0 * Math.PI) / 2048.0);
-    leftEncoder.setReverseDirection(true);
-    rightEncoder.setDistancePerPulse((6.0 * Math.PI) / 2048.0);
+    leftGearbox.setInverted(true);
   }
 
   private void setLeftPower(double power) {
@@ -75,7 +69,7 @@ public class Drive extends SubsystemBase{
       if(this.desiredAngle == Integer.MAX_VALUE) { //means robot just started driving straight
         this.desiredAngle = gyroscope.getGyroAngle(); 
       }
-      curvature = this.getAngularError(desiredAngle); 
+      curvature = this.getAngularError(desiredAngle) * P_VALUE; 
       this.setLeftPower(-(throttle - curvature));
       this.setRightPower(throttle + curvature);
     }
@@ -86,12 +80,7 @@ public class Drive extends SubsystemBase{
   }
 
   public double getAngularError(double desiredAngle) {  
-    return  (gyroscope.getGyroAngle() - desiredAngle) * P_VALUE;
-  }
-
-  public void resetEncoders() {
-    leftEncoder.reset();
-    rightEncoder.reset();
+    return  (gyroscope.getGyroAngle() - desiredAngle);
   }
 
   public void setBrakeMode(){
@@ -104,18 +93,8 @@ public class Drive extends SubsystemBase{
     rightGearbox.setCoastMode();
   }
 
-  public double getLeftEncoderDistance() {
-    double leftEncoderDistance =leftEncoder.getDistance();
-    return leftEncoderDistance;
-  }
-
-  public double getRightEncoderDistance() {
-    double rightEncoderDistance = leftEncoder.getDistance();
-    return rightEncoderDistance;
-  }
-
   public double straightTurnPower(double pValue) {
-    double error = getLeftEncoderDistance() - getRightEncoderDistance();
+    double error = leftGearbox.getEncoderDistance() - rightGearbox.getEncoderDistance();
     double turnPower = error * pValue;
     return turnPower;
   }

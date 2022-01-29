@@ -2,15 +2,23 @@ package frc.robot.subsystems.drive;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
+
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 
 public class Gearbox {
     private CANSparkMax[] controllers;
     private MotorControllerGroup motorControllerGroup;
+    private Encoder encoder;
 
-    public Gearbox(CANSparkMax... controllers) {
+    public Gearbox(Encoder encoder, CANSparkMax... controllers) {
         this.controllers = controllers;
         this.motorControllerGroup = new MotorControllerGroup(controllers);
+        this.encoder = encoder;
+        // TODO: these values are for a specific robot and specefic encoder
+        // that may not be the same for all robots. Change them to reference
+        // a value in Constants.java - Egan
+        this.encoder.setDistancePerPulse((6.0 * Math.PI) / 2048.0);
     }
 
     public MotorControllerGroup getMotorControllerGroup() {
@@ -52,5 +60,18 @@ public class Gearbox {
      */
     public void setInverted(boolean isInverted) {
         this.motorControllerGroup.setInverted(isInverted);
+        this.encoder.setReverseDirection(isInverted);
+    }
+
+    public void resetEncoder() {
+        this.encoder.reset();
+    }
+
+    /**
+     * Comment me! - Egan
+     * TODO: units?
+     */
+    public double getEncoderDistance() {
+        return this.encoder.getDistance();
     }
 }
