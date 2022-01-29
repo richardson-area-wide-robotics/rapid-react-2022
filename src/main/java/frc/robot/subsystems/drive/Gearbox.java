@@ -19,6 +19,7 @@ public class Gearbox {
         // that may not be the same for all robots. Change them to reference
         // a value in Constants.java - Egan
         this.encoder.setDistancePerPulse((6.0 * Math.PI) / 2048.0);
+        this.resetEncoder();
     }
 
     public MotorControllerGroup getMotorControllerGroup() {
@@ -54,6 +55,10 @@ public class Gearbox {
             controller.setIdleMode(IdleMode.kCoast);
         }
     }
+
+    public double getEncoderRate() {
+        return this.encoder.getRate();
+    }
     
     /**
      * Comment me! - Egan
@@ -65,6 +70,10 @@ public class Gearbox {
 
     public void resetEncoder() {
         this.encoder.reset();
+    }
+
+    public void setVoltage(double outputVoltage) {
+        this.motorControllerGroup.setVoltage(outputVoltage);
     }
 
     /**

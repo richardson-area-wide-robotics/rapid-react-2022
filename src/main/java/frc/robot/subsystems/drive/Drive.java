@@ -2,9 +2,13 @@ package frc.robot.subsystems.drive;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 
 public class Drive extends SubsystemBase{
 
@@ -12,6 +16,7 @@ public class Drive extends SubsystemBase{
   private Gearbox rightGearbox;
   private Gyroscope gyroscope;
   private DifferentialDrive differentialDrive;
+  private DifferentialDriveOdometry differentialDriveOdometry;
 
   //variables
   private double desiredAngle;
@@ -41,6 +46,7 @@ public class Drive extends SubsystemBase{
     this.rightGearbox = new Gearbox(new Encoder(2, 3), new CANSparkMax(RIGHT_BACK_CAN_ID, DRIVE_MOTOR_TYPE),
         new CANSparkMax(RIGHT_FRONT_CAN_ID, DRIVE_MOTOR_TYPE), new CANSparkMax(RIGHT_MIDDLE_CAN_ID, DRIVE_MOTOR_TYPE));
 
+
     this.leftGearbox.setRampRate(RAMP_RATE);
     this.rightGearbox.setRampRate(RAMP_RATE);
     
@@ -48,8 +54,78 @@ public class Drive extends SubsystemBase{
                                               this.rightGearbox.getMotorControllerGroup());
 
     this.gyroscope = gyroscope;
+    this.differentialDriveOdometry = new DifferentialDriveOdometry(this.gyroscope.getRotation2d());
 
     leftGearbox.setInverted(true);
+  }
+
+  @Override
+  public void periodic() {
+    this.differentialDriveOdometry.update(this.gyroscope.getRotation2d(), this.leftGearbox.getEncoderDistance(), this.rightGearbox.getEncoderDistance());
+  }
+
+  /**
+   * Returns the currently-estimated pose of the robot.
+   *
+   * @return The pose.
+   */
+  public Pose2d getPose2d() {
+    return this.differentialDriveOdometry.getPoseMeters();
+  }
+
+  /** Resets the drive encoders to currently read a position of 0. */
+  public void resetEncoders() {
+    this.leftGearbox.resetEncoder();
+    this.rightGearbox.resetEncoder();
+  }
+
+  /**
+   * Returns the current wheel speeds of the robot.
+   *
+   * @return The current wheel speeds.
+   */
+  public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+    return new DifferentialDriveWheelSpeeds(this.leftGearbox.getEncoderDistance(), this.rightGearbox.getEncoderDistance());
+  }
+  
+  /**
+   * Resets the odometry to the specified pose.
+   *
+   * @param pose The pose to which to set the odometry.
+   */
+  public void resetOdementry(Pose2d pose2d) {
+    resetEncoders();
+    this.differentialDriveOdometry.resetPosition(pose2d, this.gyroscope.getRotation2d());
+  }
+
+  /**
+   * Controls the left and right sides of the drive directly with voltages.
+   *
+   * @param leftVolts the commanded left output
+   * @param rightVolts the commanded right output
+   */
+  public void tankDriveVolts(double leftVolts, double rightVolts) {
+    this.leftGearbox.setVoltage(leftVolts);
+    this.rightGearbox.setVoltage(rightVolts);
+    differentialDrive.feed();
+  }
+
+  /**
+   * Gets the average distance of the two encoders.
+   *
+   * @return the average of the two encoder readings
+   */
+  public double getAverageEncoderDistance() {
+    return ((this.leftGearbox.getEncoderDistance() + this.rightGearbox.getEncoderDistance()) / 2.0);
+  }
+
+  /**
+   * Sets the max output of the drive. Useful for scaling the drive to drive more slowly.
+   *
+   * @param maxOutput the maximum output to which the drive will be constrained
+   */
+  public void setMaxOutput(double maxOutput) {
+    this.differentialDrive.setMaxOutput(maxOutput);
   }
 
   private void setLeftPower(double power) {
@@ -70,7 +146,7 @@ public class Drive extends SubsystemBase{
         this.desiredAngle = gyroscope.getGyroAngle(); 
       }
       curvature = this.getAngularError(desiredAngle) * P_VALUE; 
-      this.setLeftPower(-(throttle - curvature));
+      this.setLeftPower(throttle - curvature);
       this.setRightPower(throttle + curvature);
     }
     else { // when robot isn't driving straight
