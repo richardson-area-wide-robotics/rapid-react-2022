@@ -45,8 +45,8 @@ public class Drive extends SubsystemBase{
     this.leftGearbox.setRampRate(RAMP_RATE);
     this.rightGearbox.setRampRate(RAMP_RATE);
     
-    differentialDrive = new DifferentialDrive(this.leftGearbox.getSpeedControllerGroup(), 
-                                              this.rightGearbox.getSpeedControllerGroup());
+    differentialDrive = new DifferentialDrive(this.leftGearbox.getMotorControllerGroup(), 
+                                              this.rightGearbox.getMotorControllerGroup());
 
     this.gyroscope = gyroscope;
 
@@ -58,12 +58,12 @@ public class Drive extends SubsystemBase{
     rightEncoder.setDistancePerPulse((6.0 * Math.PI) / 2048.0);
   }
 
-  private void setLeftSpeed(double speed) {
-    this.leftGearbox.setSpeed(speed);
+  private void setLeftPower(double power) {
+    this.leftGearbox.setPower(power);
   }
 
-  private void setRightSpeed(double speed) {
-    this.rightGearbox.setSpeed(speed);
+  private void setRightPower(double power) {
+    this.rightGearbox.setPower(power);
   }
 
   public void arcadeDrive(double throttle, double turnModifier){
@@ -76,8 +76,8 @@ public class Drive extends SubsystemBase{
         this.desiredAngle = gyroscope.getGyroAngle(); 
       }
       curvature = this.getAngularError(desiredAngle); 
-      this.setLeftSpeed(-(throttle - curvature));
-      this.setRightSpeed(throttle + curvature);
+      this.setLeftPower(-(throttle - curvature));
+      this.setRightPower(throttle + curvature);
     }
     else { // when robot isn't driving straight
       this.desiredAngle = Integer.MAX_VALUE; //if turn is greater than 0 or if robot is still
