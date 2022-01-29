@@ -20,7 +20,7 @@ public class Gyroscope {
     public double getGyroAngle(){
         double runTime = Timer.getFPGATimestamp() - startTime;
         double drift = runTime * driftPerSecond;
-        return this.ahrs.getAngle() - drift;
+        return this.ahrs.getAngle(); //- drift;
     }
 
     public Rotation2d getRotation2d(){

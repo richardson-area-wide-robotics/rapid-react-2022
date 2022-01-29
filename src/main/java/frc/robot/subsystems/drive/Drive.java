@@ -36,10 +36,10 @@ public class Drive extends SubsystemBase{
 
   private MotorType DRIVE_MOTOR_TYPE = MotorType.kBrushless;
 
-  private boolean gyroDisabled = false;
+  private boolean gyroDisabled = true;
 
   public Drive(Gyroscope gyroscope) {
-    this.leftGearbox = new Gearbox(new Encoder(0, 1), new CANSparkMax(LEFT_BACK_CAN_ID, DRIVE_MOTOR_TYPE),
+    this.leftGearbox = new Gearbox(new Encoder(7, 8, true), new CANSparkMax(LEFT_BACK_CAN_ID, DRIVE_MOTOR_TYPE),
         new CANSparkMax(LEFT_FRONT_CAN_ID, DRIVE_MOTOR_TYPE), new CANSparkMax(LEFT_MIDDLE_CAN_ID, DRIVE_MOTOR_TYPE));
 
 
@@ -56,11 +56,12 @@ public class Drive extends SubsystemBase{
     this.gyroscope = gyroscope;
     this.differentialDriveOdometry = new DifferentialDriveOdometry(this.gyroscope.getRotation2d());
 
-    leftGearbox.setInverted(true);
+    //leftGearbox.setInverted(true);
   }
 
   @Override
   public void periodic() {
+    //System.out.println(this.gyroscope.getGyroAngle());
     this.differentialDriveOdometry.update(this.gyroscope.getRotation2d(), this.leftGearbox.getEncoderDistance(), this.rightGearbox.getEncoderDistance());
   }
 
@@ -82,7 +83,7 @@ public class Drive extends SubsystemBase{
   /**
    * Returns the current wheel speeds of the robot.
    *
-   * @return The current wheel speeds.
+   * @return The current wheel speeds, in meters per second
    */
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
     return new DifferentialDriveWheelSpeeds(this.leftGearbox.getEncoderDistance(), this.rightGearbox.getEncoderDistance());
@@ -95,6 +96,7 @@ public class Drive extends SubsystemBase{
    */
   public void resetOdometry(Pose2d pose2d) {
     resetEncoders();
+    this.gyroscope.resetGyro();
     this.differentialDriveOdometry.resetPosition(pose2d, this.gyroscope.getRotation2d());
   }
 
@@ -146,12 +148,12 @@ public class Drive extends SubsystemBase{
         this.desiredAngle = gyroscope.getGyroAngle(); 
       }
       curvature = this.getAngularError(desiredAngle) * P_VALUE; 
-      this.setLeftPower(throttle - curvature);
+      this.setLeftPower((throttle - curvature));
       this.setRightPower(throttle + curvature);
     }
     else { // when robot isn't driving straight
       this.desiredAngle = Integer.MAX_VALUE; //if turn is greater than 0 or if robot is still
-      differentialDrive.curvatureDrive(-throttle, curvature, (Math.abs(throttle) < QUICK_TURN_THROTTLE_DEADZONE));
+      differentialDrive.curvatureDrive(-throttle, curvature, Math.abs(throttle) < QUICK_TURN_THROTTLE_DEADZONE);
     }
   }
 

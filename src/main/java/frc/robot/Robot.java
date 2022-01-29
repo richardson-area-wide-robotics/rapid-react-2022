@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Gyroscope;
+import frc.robot.commands.autonomousCommands.TrajectoryTutCommand;
 import frc.robot.operatorInputs.Controls;
 import frc.robot.operatorInputs.OperatorInputs;
 
@@ -21,6 +22,7 @@ import frc.robot.operatorInputs.OperatorInputs;
  */
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
+  private TrajectoryTutCommand trajectoryTutCommand;
   private Drive drive;
   private Gyroscope gyro;
   private RobotContainer m_robotContainer;
@@ -72,12 +74,9 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    this.trajectoryTutCommand = new TrajectoryTutCommand(drive);
 
-    // schedule the autonomous command (example)
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
-    }
+    this.trajectoryTutCommand.schedule();
   }
 
   /** This function is called periodically during autonomous. */

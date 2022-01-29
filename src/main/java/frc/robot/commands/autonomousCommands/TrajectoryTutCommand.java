@@ -14,10 +14,11 @@ import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.constants.DriveConstants;
 import frc.robot.subsystems.drive.Drive;
 
-public class TrajectoryTutCommand extends CommandBase {
+public class TrajectoryTutCommand extends SequentialCommandGroup {
     
     private Drive drive;
     private DifferentialDriveVoltageConstraint autoVoltageConstraint; 
@@ -25,8 +26,8 @@ public class TrajectoryTutCommand extends CommandBase {
     private Trajectory exampleTrajectory;
     private RamseteCommand ramseteCommand;
     
-    private final double kMaxSpeedMetersPerSecond = 0.0;
-    private final double kMaxAccelerationMetersPerSecondSquared = 0.0;
+    private final double kMaxSpeedMetersPerSecond = 0.5;
+    private final double kMaxAccelerationMetersPerSecondSquared = 0.1;
     private final double kRamseteB = 0.0;
     private final double kRamseteZeta = 0.0;
     
@@ -62,7 +63,7 @@ public class TrajectoryTutCommand extends CommandBase {
         this.ramseteCommand = new RamseteCommand(
                     exampleTrajectory,
                     this.drive::getPose,
-                    new RamseteController(this.kRamseteB, this.kRamseteZeta),
+                    new RamseteController(),//(this.kRamseteB, this.kRamseteZeta),
                     new SimpleMotorFeedforward(
                         DriveConstants.ksVolts,
                         DriveConstants.kvVoltSecondsPerMeter,
@@ -74,26 +75,29 @@ public class TrajectoryTutCommand extends CommandBase {
                     // RamseteCommand passes volts to the callback
                     this.drive::tankDriveVolts,
                     this.drive);
-    }
-
-    @Override
-    public void initialize() {
-        // Reset odometry to the starting pose of the trajectory.
-        this.drive.resetOdometry(exampleTrajectory.getInitialPose());
-    }
-
-    @Override
-    public void execute() {
-        this.ramseteCommand.andThen(() -> this.drive.tankDriveVolts(0, 0));
-    }
-
-    @Override
-    public boolean isFinished() {
-        return this.ramseteCommand.isFinished();
-    }
-
-    @Override
-    public void end(boolean interrupted) {
+                        this.drive.resetOdometry(exampleTrajectory.getInitialPose());
+                        addCommands(this.ramseteCommand);
 
     }
+
+    // @Override
+    // public void initialize() {
+    //     // Reset odometry to the starting pose of the trajectory.
+    //     this.drive.resetOdometry(exampleTrajectory.getInitialPose());
+    // }
+
+    // @Override
+    // public void execute() {
+    //     this.ramseteCommand.andThen(() -> this.drive.tankDriveVolts(0, 0));
+    // }
+
+    // @Override
+    // public boolean isFinished() {
+    //     return this.ramseteCommand.isFinished();
+    // }
+
+    // @Override
+    // public void end(boolean interrupted) {
+
+    // }
 }
