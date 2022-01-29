@@ -69,7 +69,7 @@ public class Drive extends SubsystemBase{
    *
    * @return The pose.
    */
-  public Pose2d getPose2d() {
+  public Pose2d getPose() {
     return this.differentialDriveOdometry.getPoseMeters();
   }
 
@@ -93,7 +93,7 @@ public class Drive extends SubsystemBase{
    *
    * @param pose The pose to which to set the odometry.
    */
-  public void resetOdementry(Pose2d pose2d) {
+  public void resetOdometry(Pose2d pose2d) {
     resetEncoders();
     this.differentialDriveOdometry.resetPosition(pose2d, this.gyroscope.getRotation2d());
   }
