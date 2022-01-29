@@ -1,11 +1,12 @@
 package frc.robot.subsystems.drive;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import com.kauailabs.navx.frc.AHRS;
 
 public class Gyroscope {
-    //Classes
+
     private AHRS ahrs; 
     //variables
     private double startTime;
@@ -22,12 +23,21 @@ public class Gyroscope {
         return this.ahrs.getAngle() - drift;
     }
 
-    public void getRotation2d(){
-        this.ahrs.getRotation2d();
+    public Rotation2d getRotation2d(){
+       return this.ahrs.getRotation2d();
     }
 
     public void getRate(){
         this.ahrs.getRate();
+    }
+
+    /**
+   * Returns the heading of the robot.
+   *
+   * @return the robot's heading in degrees, from -180 to 180
+   */
+    public double getHeading() {
+        return this.ahrs.getRotation2d().getDegrees();
     }
 
     public void resetGyro(){
