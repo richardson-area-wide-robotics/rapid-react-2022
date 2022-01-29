@@ -5,10 +5,12 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import frc.robot.Constants;
 
 public class Drive extends SubsystemBase{
 
@@ -22,7 +24,8 @@ public class Drive extends SubsystemBase{
   private double desiredAngle;
 
   //constants
-  private final double P_VALUE = .0025;
+  // kP for curvature drive closed loop, in units of max output proportion per (1/m) of curvature error.
+  private final double kP_CURVATURE_DRIVE = .0025;
   private final double RAMP_RATE = 1;
   private final double QUICK_TURN_THROTTLE_DEADZONE = 0.1;
   // left gear box CAN ids
@@ -140,18 +143,51 @@ public class Drive extends SubsystemBase{
     differentialDrive.arcadeDrive(throttle, turnModifier);
   }
 
+  /**
+   * Executes curvatureDrive with closed loop control. Needs to be called
+   * periodically by the command. 
+   * @param throttle - [-1.0, 1.0]. Positive is forward
+   * @param curvature - [-1.0, 1.0]. Positive is turning right
+   */
   public void curvatureDrive(double throttle, double curvature) {
-    if(throttle != 0.0 && curvature == 0.0 && !gyroDisabled) { //driving straight and no turn
-      if(this.desiredAngle == Integer.MAX_VALUE) { //means robot just started driving straight
-        this.desiredAngle = gyroscope.getGyroAngle(); 
-      }
-      curvature = this.getAngularError(desiredAngle) * P_VALUE; 
-      this.setLeftPower(throttle - curvature);
-      this.setRightPower(throttle + curvature);
-    }
-    else { // when robot isn't driving straight
-      this.desiredAngle = Integer.MAX_VALUE; //if turn is greater than 0 or if robot is still
-      differentialDrive.curvatureDrive(-throttle, curvature, (Math.abs(throttle) < QUICK_TURN_THROTTLE_DEADZONE));
+
+    if(Math.abs(throttle) < QUICK_TURN_THROTTLE_DEADZONE){
+      // If throttle is less than the deadzone, treat inputs as arcade
+      this.arcadeDrive(throttle, curvature);
+    }else{
+      // Otherwise, treat inputs as curvature
+
+      // Calculate ideal left and right speeds based on curvature
+      WheelSpeeds desiredSpeeds = DifferentialDrive.curvatureDriveIK(throttle, curvature, false);
+
+      // To execute closed loop and correct unwanted turning, we need to directly
+      // compare a desired quanity to the current quantity to get an error.
+      // The units on desired speeds are hard to put into terms of turning directly,
+      // so we need a way to cancel them out. If we control the curvature rate instead (which
+      // is turn rate / linear rate), we can cancel out some of the units into degrees/meter,
+      // making comparison easier.
+
+      // Desired curvature rate
+      double desiredTurnRate = (180 / Math.PI) * (desiredSpeeds.left - desiredSpeeds.right) / (Constants.TRACK_WIDTH_METERS / 2);
+      double desiredSpeed = Math.abs(desiredSpeeds.left + desiredSpeeds.right) / 2.0;
+      // account for the possiblity of dividing by zero
+      double desiredCurvature = desiredTurnRate / Math.max(desiredSpeed, QUICK_TURN_THROTTLE_DEADZONE);
+
+      // Measured curvature rate
+      double measuredTurnRate = this.gyroscope.getRate();
+      // TODO: make sure encoder speeds are in meters per second
+      double measuredSpeed = Math.abs(this.leftGearbox.getEncoderRate() + this.rightGearbox.getEncoderRate()) / 2.0;
+      // account for the possiblity of dividing by zero. Anyting less than 5cm/s is too noisy, set floor
+      double measuredCurvature = measuredTurnRate/Math.max(measuredSpeed, 0.05);
+
+      // Modify wheel speeds based on curvature error
+      double turnRateCorrection = (desiredCurvature - measuredCurvature) * kP_CURVATURE_DRIVE;
+
+      // send the modified wheel speeds to the motors
+      desiredSpeeds.left += turnRateCorrection;
+      desiredSpeeds.right -= turnRateCorrection;
+      differentialDrive.tankDrive(desiredSpeeds.left, desiredSpeeds.right);
+      
     }
   }
 

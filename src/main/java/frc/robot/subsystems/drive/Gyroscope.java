@@ -27,9 +27,10 @@ public class Gyroscope {
        return this.ahrs.getRotation2d();
     }
 
-    public void getRate(){
-        this.ahrs.getRate();
+    public double getRate(){
+        return this.ahrs.getRate();
     }
+
 
     /**
    * Returns the heading of the robot.
