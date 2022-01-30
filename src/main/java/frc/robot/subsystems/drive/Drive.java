@@ -57,6 +57,7 @@ public class Drive extends SubsystemBase{
     this.differentialDriveOdometry = new DifferentialDriveOdometry(this.gyroscope.getRotation2d());
 
     //leftGearbox.setInverted(true);
+    rightGearbox.setInverted(true);
   }
 
   @Override
@@ -130,11 +131,11 @@ public class Drive extends SubsystemBase{
     this.differentialDrive.setMaxOutput(maxOutput);
   }
 
-  private void setLeftPower(double power) {
+  public void setLeftPower(double power) {
     this.leftGearbox.setPower(power);
   }
 
-  private void setRightPower(double power) {
+  public void setRightPower(double power) {
     this.rightGearbox.setPower(power);
   }
 
