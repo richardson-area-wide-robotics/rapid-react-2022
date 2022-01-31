@@ -26,8 +26,8 @@ public class TrajectoryTutCommand extends SequentialCommandGroup {
     private Trajectory exampleTrajectory;
     private RamseteCommand ramseteCommand;
     
-    private final double kMaxSpeedMetersPerSecond = 0.5;
-    private final double kMaxAccelerationMetersPerSecondSquared = 0.1;
+    private final double kMaxSpeedMetersPerSecond = 5.0;
+    private final double kMaxAccelerationMetersPerSecondSquared = 2.0;
     private final double kRamseteB = 0.0;
     private final double kRamseteZeta = 0.0;
     

@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 
@@ -53,6 +54,7 @@ public class Drive extends SubsystemBase{
     this.differentialDrive = new DifferentialDrive(this.leftGearbox.getMotorControllerGroup(), 
     this.rightGearbox.getMotorControllerGroup());
     this.gyroscope = gyroscope;
+    
     this.resetEncoders();
     this.differentialDriveOdometry = new DifferentialDriveOdometry(this.gyroscope.getRotation2d());
 
@@ -177,5 +179,5 @@ public class Drive extends SubsystemBase{
 
   public void gyroDisabled(boolean gyroDisabled) {
     this.gyroDisabled = gyroDisabled;
-  }
+  } 
 }
