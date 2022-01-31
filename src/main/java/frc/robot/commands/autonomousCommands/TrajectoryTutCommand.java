@@ -75,8 +75,8 @@ public class TrajectoryTutCommand extends SequentialCommandGroup {
                     // RamseteCommand passes volts to the callback
                     this.drive::tankDriveVolts,
                     this.drive);
-                        this.drive.resetOdometry(exampleTrajectory.getInitialPose());
-                        addCommands(this.ramseteCommand);
+                    this.drive.resetOdometry(exampleTrajectory.getInitialPose());
+                    addCommands(this.ramseteCommand);
 
     }
 
