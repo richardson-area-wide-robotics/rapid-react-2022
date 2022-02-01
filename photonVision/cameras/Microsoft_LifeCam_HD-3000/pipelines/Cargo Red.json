@@ -17,17 +17,17 @@
     "second" : 20
   },
   "hsvSaturation" : {
-    "first" : 100,
-    "second" : 255
+    "first" : 80,
+    "second" : 200
   },
   "hsvValue" : {
-    "first" : 80,
+    "first" : 114,
     "second" : 255
   },
   "outputShouldDraw" : true,
-  "outputShowMultipleTargets" : false,
+  "outputShowMultipleTargets" : true,
   "contourArea" : {
-    "first" : 0.0,
+    "first" : 1.5,
     "second" : 100.0
   },
   "contourRatio" : {
@@ -38,7 +38,7 @@
     "first" : 0.0,
     "second" : 100.0
   },
-  "contourSpecklePercentage" : 6,
+  "contourSpecklePercentage" : 51,
   "contourSortMode" : "Largest",
   "contourTargetOffsetPointEdge" : "Center",
   "contourTargetOrientation" : "Landscape",
@@ -74,12 +74,12 @@
   "accuracyPercentage" : 10.0,
   "circleDetectThreshold" : 15,
   "contourRadius" : {
-    "first" : 0,
-    "second" : 100
+    "first" : 10,
+    "second" : 10
   },
   "minDist" : 20,
-  "maxCannyThresh" : 90,
-  "circleAccuracy" : 1,
+  "maxCannyThresh" : 1,
+  "circleAccuracy" : 10,
   "cameraCalibration" : null,
   "erode" : false,
   "dilate" : false
