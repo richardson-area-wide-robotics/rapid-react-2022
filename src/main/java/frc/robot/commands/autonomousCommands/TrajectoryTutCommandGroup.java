@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.constants.DriveConstants;
 import frc.robot.subsystems.drive.Drive;
 
-public class TrajectoryTutCommand extends SequentialCommandGroup {
+public class TrajectoryTutCommandGroup extends SequentialCommandGroup {
     
     private Drive drive;
     private DifferentialDriveVoltageConstraint autoVoltageConstraint; 
@@ -28,10 +28,11 @@ public class TrajectoryTutCommand extends SequentialCommandGroup {
     
     private final double kMaxSpeedMetersPerSecond = 4;
     private final double kMaxAccelerationMetersPerSecondSquared = 0.1;
+    private final double MAX_VOLTAGE = 10;
     private final double kRamseteB = 0.0;
     private final double kRamseteZeta = 0.0;
     
-    public TrajectoryTutCommand(Drive drive) {
+    public TrajectoryTutCommandGroup(Drive drive) {
          // Create a voltage constraint to ensure we don't accelerate too fast
         this.drive = drive;
         this.autoVoltageConstraint = new DifferentialDriveVoltageConstraint(
@@ -40,7 +41,7 @@ public class TrajectoryTutCommand extends SequentialCommandGroup {
                 DriveConstants.kvVoltSecondsPerMeter,
                 DriveConstants.kaVoltSecondsSquaredPerMeter),
             DriveConstants.kDriveKinematics,
-            10);
+            MAX_VOLTAGE);
 
         this.config = new TrajectoryConfig(
             this.kMaxSpeedMetersPerSecond,
@@ -80,25 +81,4 @@ public class TrajectoryTutCommand extends SequentialCommandGroup {
                     addCommands(this.ramseteCommand);
 
     }
-
-    // @Override
-    // public void initialize() {
-    //     // Reset odometry to the starting pose of the trajectory.
-    //     this.drive.resetOdometry(exampleTrajectory.getInitialPose());
-    // }
-
-    // @Override
-    // public void execute() {
-    //     this.ramseteCommand.andThen(() -> this.drive.tankDriveVolts(0, 0));
-    // }
-
-    // @Override
-    // public boolean isFinished() {
-    //     return this.ramseteCommand.isFinished();
-    // }
-
-    // @Override
-    // public void end(boolean interrupted) {
-
-    // }
 }
