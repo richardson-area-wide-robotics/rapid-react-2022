@@ -26,8 +26,8 @@ public class TrajectoryTutCommand extends SequentialCommandGroup {
     private Trajectory exampleTrajectory;
     private RamseteCommand ramseteCommand;
     
-    private final double kMaxSpeedMetersPerSecond = 5.0;
-    private final double kMaxAccelerationMetersPerSecondSquared = 2.0;
+    private final double kMaxSpeedMetersPerSecond = 4;
+    private final double kMaxAccelerationMetersPerSecondSquared = 0.1;
     private final double kRamseteB = 0.0;
     private final double kRamseteZeta = 0.0;
     
@@ -59,6 +59,7 @@ public class TrajectoryTutCommand extends SequentialCommandGroup {
                 new Pose2d(3, 0, new Rotation2d(0)),
                 // Pass config
                 config);
+
         
         this.ramseteCommand = new RamseteCommand(
                     exampleTrajectory,

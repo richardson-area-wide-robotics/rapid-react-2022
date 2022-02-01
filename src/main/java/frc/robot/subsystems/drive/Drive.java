@@ -4,6 +4,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -47,7 +48,6 @@ public class Drive extends SubsystemBase{
     this.rightGearbox = new Gearbox(new Encoder(2, 3), new CANSparkMax(RIGHT_BACK_CAN_ID, DRIVE_MOTOR_TYPE),
         new CANSparkMax(RIGHT_FRONT_CAN_ID, DRIVE_MOTOR_TYPE), new CANSparkMax(RIGHT_MIDDLE_CAN_ID, DRIVE_MOTOR_TYPE));
 
-
     this.leftGearbox.setRampRate(RAMP_RATE);
     this.rightGearbox.setRampRate(RAMP_RATE);
     
@@ -56,9 +56,10 @@ public class Drive extends SubsystemBase{
     this.gyroscope = gyroscope;
     
     this.resetEncoders();
+    this.gyroscope.resetGyro();
     this.differentialDriveOdometry = new DifferentialDriveOdometry(this.gyroscope.getRotation2d());
 
-    rightGearbox.setInverted(true);
+    this.rightGearbox.setInverted(true);
   }
 
   @Override
@@ -81,6 +82,14 @@ public class Drive extends SubsystemBase{
     this.rightGearbox.resetEncoder();
   }
 
+  public double getLeftEncoderDistance() {
+    return this.leftGearbox.getEncoderDistance();
+  }
+
+  public double getRightEncoderDistance() {
+    return this.rightGearbox.getEncoderDistance();
+  }
+
   /**
    * Returns the current wheel speeds of the robot.
    *
@@ -96,7 +105,7 @@ public class Drive extends SubsystemBase{
    * @param pose The pose to which to set the odometry.
    */
   public void resetOdometry(Pose2d pose2d) {
-    resetEncoders();
+    this.resetEncoders();
     this.differentialDriveOdometry.resetPosition(pose2d, this.gyroscope.getRotation2d());
   }
 
