@@ -6,12 +6,13 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Gyroscope;
-import frc.robot.commands.autonomousCommands.TrajectoryTutCommandGroup;
 import frc.robot.commands.autonomousCommands.TrajectoryTutCommandGroup;
 import frc.robot.operatorInputs.Controls;
 import frc.robot.operatorInputs.OperatorInputs;
@@ -47,13 +48,20 @@ public class Robot extends TimedRobot {
     this.gyro = new Gyroscope();
     this.drive = new Drive(gyro);
     this.operatorInputs = new OperatorInputs(driverControls, drive);
-  }
 
-  private void updateSmartDashboardValues() {
+    Shuffleboard.getTab("Drive") 
+      .add("gyro angle value", this.gyro.getGyroAngle())
+      .withWidget(BuiltInWidgets.kGyro)
+      .getEntry();
+  }
+    
+  private void updateSmartDashboardValues() {   
     SmartDashboard.putNumber("right encoder value", this.drive.getRightEncoderDistance());
     SmartDashboard.putNumber("left encoder value", this.drive.getLeftEncoderDistance());
     SmartDashboard.putNumber("gyro angle value", this.gyro.getGyroAngle());
   }
+
+  
   /**
    * This function is called every robot packet, no matter the mode. Use this for items like
    * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
@@ -63,7 +71,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    this.updateSmartDashboardValues();
+    this.updateSmartDashboardValues(); 
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic

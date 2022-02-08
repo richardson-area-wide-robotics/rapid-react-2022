@@ -26,8 +26,8 @@ public class TrajectoryTutCommandGroup extends SequentialCommandGroup {
     private Trajectory exampleTrajectory;
     private RamseteCommand ramseteCommand;
     
-    private final double kMaxSpeedMetersPerSecond = 4;
-    private final double kMaxAccelerationMetersPerSecondSquared = 0.1;
+    private final double kMaxSpeedMetersPerSecond = 1;
+    private final double kMaxAccelerationMetersPerSecondSquared = 0.05;
     private final double MAX_VOLTAGE = 10;
     private final double kRamseteB = 0.0;
     private final double kRamseteZeta = 0.0;
@@ -77,6 +77,7 @@ public class TrajectoryTutCommandGroup extends SequentialCommandGroup {
                     // RamseteCommand passes volts to the callback
                     this.drive::tankDriveVolts,
                     this.drive);
+                    
                     this.drive.resetOdometry(exampleTrajectory.getInitialPose());
                     addCommands(this.ramseteCommand);
 

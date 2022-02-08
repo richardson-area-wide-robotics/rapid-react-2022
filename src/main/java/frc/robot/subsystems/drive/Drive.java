@@ -89,6 +89,13 @@ public class Drive extends SubsystemBase{
     return this.rightGearbox.getEncoderDistance();
   }
 
+  public double getLeftEncodeRate() {
+    return this.leftGearbox.getEncoderRate();
+  }
+
+  public double getRightEncodeRate() {
+    return this.rightGearbox.getEncoderRate();
+  }
   /**
    * Returns the current wheel speeds of the robot.
    *
