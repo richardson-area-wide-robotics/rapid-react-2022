@@ -25,9 +25,9 @@ public class TrajectoryTutCommandGroup extends SequentialCommandGroup {
     private TrajectoryConfig config;
     private Trajectory exampleTrajectory;
     private RamseteCommand ramseteCommand;
-    
-    private final double kMaxSpeedMetersPerSecond = 1;
-    private final double kMaxAccelerationMetersPerSecondSquared = 0.05;
+    // 0.90 and 0.40 were optimal values but getting better on the speed (need to delete this)
+    private final double kMaxSpeedMetersPerSecond = 0.90;
+    private final double kMaxAccelerationMetersPerSecondSquared = 0.405;
     private final double MAX_VOLTAGE = 10;
     private final double kRamseteB = 0.0;
     private final double kRamseteZeta = 0.0;
