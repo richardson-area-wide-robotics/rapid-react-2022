@@ -6,10 +6,14 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Gyroscope;
+import frc.robot.commands.autonomousCommands.TrajectoryTutCommandGroup;
 import frc.robot.operatorInputs.Controls;
 import frc.robot.operatorInputs.OperatorInputs;
 
@@ -21,6 +25,7 @@ import frc.robot.operatorInputs.OperatorInputs;
  */
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
+  private TrajectoryTutCommandGroup trajectoryTutCommand;
   private Drive drive;
   private Gyroscope gyro;
   private RobotContainer m_robotContainer;
@@ -43,8 +48,20 @@ public class Robot extends TimedRobot {
     this.gyro = new Gyroscope();
     this.drive = new Drive(gyro);
     this.operatorInputs = new OperatorInputs(driverControls, drive);
+
+    Shuffleboard.getTab("Drive") 
+      .add("gyro angle value", this.gyro.getGyroAngle())
+      .withWidget(BuiltInWidgets.kGyro)
+      .getEntry();
+  }
+    
+  private void updateSmartDashboardValues() {   
+    SmartDashboard.putNumber("right encoder value", this.drive.getRightEncoderDistance());
+    SmartDashboard.putNumber("left encoder value", this.drive.getLeftEncoderDistance());
+    SmartDashboard.putNumber("gyro angle value", this.gyro.getGyroAngle());
   }
 
+  
   /**
    * This function is called every robot packet, no matter the mode. Use this for items like
    * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
@@ -54,7 +71,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-   
+    this.updateSmartDashboardValues(); 
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
@@ -72,17 +89,16 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    this.trajectoryTutCommand = new TrajectoryTutCommandGroup(drive);
 
-    // schedule the autonomous command (example)
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
-    }
+    this.trajectoryTutCommand.schedule();
   }
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    this.updateSmartDashboardValues();
+  }
 
   @Override
   public void teleopInit() {
