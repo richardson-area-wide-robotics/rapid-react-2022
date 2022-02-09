@@ -16,6 +16,7 @@ import frc.robot.subsystems.drive.Gyroscope;
 import frc.robot.commands.autonomousCommands.TrajectoryTutCommandGroup;
 import frc.robot.operatorInputs.Controls;
 import frc.robot.operatorInputs.OperatorInputs;
+import frc.robot.commands.autonomousCommands.Path1CommandGroup;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -31,6 +32,7 @@ public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
   private Controls driverControls;
   private OperatorInputs operatorInputs;
+  private Path1CommandGroup path1Command;
 
  // Constants
   private final int JOYSTICK_PORT_DRIVER = 1;
@@ -89,9 +91,11 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    this.path1Command = new Path1CommandGroup(drive);
     this.trajectoryTutCommand = new TrajectoryTutCommandGroup(drive);
 
     this.trajectoryTutCommand.schedule();
+    this.path1Command.schedule();
   }
 
   /** This function is called periodically during autonomous. */
