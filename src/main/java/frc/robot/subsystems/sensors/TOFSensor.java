@@ -1,4 +1,4 @@
-package frc.robot.subsystems.drive;
+package frc.robot.subsystems.sensors;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalSource;
@@ -19,7 +19,7 @@ public class TOFSensor  extends SubsystemBase {
     //Distance in MM	= getOutput() * .05 *1000 * 100
     //Distance in inches	= Distance in MM /25.4
     private DutyCycle port;
-    double targetDistance; // stored in mm
+    private double targetDistance; // stored in mm
 
 
     public TOFSensor  (DigitalSource digitalSource) {
