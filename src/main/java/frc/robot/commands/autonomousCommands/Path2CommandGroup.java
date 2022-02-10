@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.constants.DriveConstants;
 import frc.robot.subsystems.drive.Drive;
 
-public class Path1CommandGroup extends SequentialCommandGroup {
+public class Path2CommandGroup extends SequentialCommandGroup {
 
 private Drive drive; 
 private DifferentialDriveVoltageConstraint autoVoltageConstraint; 
@@ -25,14 +25,13 @@ private TrajectoryConfig config;
 private Trajectory exampleTrajectory;
 private RamseteCommand ramseteCommand;
 
-//values to rememeber for robot velocity=3.66 - Acceleration=1.83 (these are starting values that was changed over time)
 public final double kMaxSpeedMetersPerSecond = 0.90;
 public final double kMaxAccelerationMetersPerSecondSquared = 0.40;
 public final double MAX_VOLTAGE = 10;
-String trajectoryJSON = "PathWeaver/output/path1.wpilib.json";
+String trajectoryJSON = "PathWeaver/output/path2.wpilib.json";
 Trajectory trajectory = new Trajectory();
 
-    public Path1CommandGroup(Drive drive) {
+    public Path2CommandGroup(Drive drive) {
       // Create a voltage constraint to ensure we don't accelerate too fast
           this.drive = drive;
           this.autoVoltageConstraint = new DifferentialDriveVoltageConstraint(

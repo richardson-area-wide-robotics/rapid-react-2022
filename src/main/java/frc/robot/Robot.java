@@ -92,9 +92,9 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     this.path1Command = new Path1CommandGroup(drive);
-    this.trajectoryTutCommand = new TrajectoryTutCommandGroup(drive);
+    //this.trajectoryTutCommand = new TrajectoryTutCommandGroup(drive);
 
-    this.trajectoryTutCommand.schedule();
+    //this.trajectoryTutCommand.schedule();
     this.path1Command.schedule();
   }
 
