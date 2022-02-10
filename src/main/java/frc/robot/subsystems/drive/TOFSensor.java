@@ -1,3 +1,4 @@
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalSource;
 import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -19,6 +20,12 @@ public class TOFSensor  extends SubsystemBase {
 
 
     public TOFSensor  (DigitalSource digitalSource) {
+        this.port = new DutyCycle(digitalSource);
+        this.targetDistance = 0;
+        this.setName("TOF Sensor port" + digitalSource.getPortHandleForRouting());
+    }
+    public TOFSensor (int PWMPort){ // declaration with an int for the PWM Port, This is mostlikely bad because you want the digital sources to be handled all at once somewhere else
+        DigitalSource digitalSource = new DigitalInput(PWMPort);
         this.port = new DutyCycle(digitalSource);
         this.targetDistance = 0;
         this.setName("TOF Sensor port" + digitalSource.getPortHandleForRouting());
