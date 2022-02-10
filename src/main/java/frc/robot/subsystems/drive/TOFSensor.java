@@ -27,8 +27,8 @@ public class TOFSensor  extends SubsystemBase {
         this.targetDistance = 0;
         this.setName("TOF Sensor port: " + digitalSource.getPortHandleForRouting());
     }
-    public TOFSensor (int PWMPort){ // declaration with an int for the PWM Port, This is mostlikely bad because you want the digital sources to be handled all at once somewhere else
-       this(new DigitalInput(PWMPort));   
+    public TOFSensor (int DIOPort){ // declaration with an int for the DIO Port, This is mostlikely bad because you want the digital sources to be handled all at once somewhere else
+       this(new DigitalInput(DIOPort));   
     }
 
     public void setTargetDistance(double targetDistance) {
