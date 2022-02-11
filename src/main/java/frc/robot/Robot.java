@@ -95,18 +95,12 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    this.path2Command = new AutonPathCommand(drive, "PathWeaver/output/path2.wpilib.json");
     this.path1Command = new AutonPathCommand(drive, "PathWeaver/output/path1.wpilib.json");
-    // this.autonCommandGroup = new SequentialCommandGroup(this.path1Command, this.path2Command);
-    this.autonCommandGroup = new SequentialCommandGroup();
-    this.autonCommandGroup.addCommands(this.path1Command);
-    this.autonCommandGroup.addCommands(this.path2Command);
+    this.path2Command = new AutonPathCommand(drive, "PathWeaver/output/path2.wpilib.json");
+    this.path3Command = new AutonPathCommand(drive, "PathWeaver/output/path3.wpilib.json");
+    this.drive.resetOdometry(this.path1Command.trajectory.getInitialPose());
+    this.autonCommandGroup = new SequentialCommandGroup(this.path1Command, this.path2Command);
     
-    //this.path3Command = new Path3CommandGroup(drive);
-    //this.trajectoryTutCommand = new TrajectoryTutCommandGroup(drive);
-
-    //this.trajectoryTutCommand.schedule();
-    //this.path1Command.schedule();
     this.autonCommandGroup.schedule();
   }
 

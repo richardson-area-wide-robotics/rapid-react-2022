@@ -24,12 +24,11 @@ private DifferentialDriveVoltageConstraint autoVoltageConstraint;
 private TrajectoryConfig config;
 private RamseteCommand ramseteCommand;
 
-//values to rememeber for robot velocity=3.66 - Acceleration=1.83 (these are starting values that was changed over time)
+//values to rememeber for robot velocity= 3.66 - Acceleration= 1.83 (these are starting values that was changed over time)
 public final double kMaxSpeedMetersPerSecond = 0.90;
 public final double kMaxAccelerationMetersPerSecondSquared = 0.40;
 public final double MAX_VOLTAGE = 10;
-// String trajectoryJSON = "PathWeaver/output/path1.wpilib.json";
-Trajectory trajectory = new Trajectory();
+public Trajectory trajectory = new Trajectory();
 
     public AutonPathCommand(Drive drive, String trajectoryJSON) {
       // Create a voltage constraint to ensure we don't accelerate too fast
@@ -72,7 +71,6 @@ Trajectory trajectory = new Trajectory();
           // RamseteCommand passes volts to the callback
           this.drive::tankDriveVolts,
           this.drive);
-          this.drive.resetOdometry(trajectory.getInitialPose());
           addCommands(this.ramseteCommand);
       }
   }
