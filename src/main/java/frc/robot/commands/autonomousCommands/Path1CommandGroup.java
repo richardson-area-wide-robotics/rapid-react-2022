@@ -22,7 +22,6 @@ public class Path1CommandGroup extends SequentialCommandGroup {
 private Drive drive; 
 private DifferentialDriveVoltageConstraint autoVoltageConstraint; 
 private TrajectoryConfig config;
-private Trajectory exampleTrajectory;
 private RamseteCommand ramseteCommand;
 
 //values to rememeber for robot velocity=3.66 - Acceleration=1.83 (these are starting values that was changed over time)

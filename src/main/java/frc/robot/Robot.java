@@ -11,12 +11,15 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Gyroscope;
 import frc.robot.commands.autonomousCommands.TrajectoryTutCommandGroup;
 import frc.robot.operatorInputs.Controls;
 import frc.robot.operatorInputs.OperatorInputs;
 import frc.robot.commands.autonomousCommands.Path1CommandGroup;
+import frc.robot.commands.autonomousCommands.Path2CommandGroup;
+import frc.robot.commands.autonomousCommands.Path3CommandGroup;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -33,6 +36,9 @@ public class Robot extends TimedRobot {
   private Controls driverControls;
   private OperatorInputs operatorInputs;
   private Path1CommandGroup path1Command;
+  private Path2CommandGroup path2Command;
+  private Path3CommandGroup path3Command;
+  private SequentialCommandGroup autonCommandGroup;
 
  // Constants
   private final int JOYSTICK_PORT_DRIVER = 1;
@@ -92,10 +98,14 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     this.path1Command = new Path1CommandGroup(drive);
+    this.path2Command = new Path2CommandGroup(drive);
+    this.autonCommandGroup = new SequentialCommandGroup(this.path1Command, this.path2Command);
+    //this.path3Command = new Path3CommandGroup(drive);
     //this.trajectoryTutCommand = new TrajectoryTutCommandGroup(drive);
 
     //this.trajectoryTutCommand.schedule();
-    this.path1Command.schedule();
+    //this.path1Command.schedule();
+    this.autonCommandGroup.schedule();
   }
 
   /** This function is called periodically during autonomous. */
