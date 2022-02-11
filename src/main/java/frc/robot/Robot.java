@@ -17,9 +17,7 @@ import frc.robot.subsystems.drive.Gyroscope;
 import frc.robot.commands.autonomousCommands.TrajectoryTutCommandGroup;
 import frc.robot.operatorInputs.Controls;
 import frc.robot.operatorInputs.OperatorInputs;
-import frc.robot.commands.autonomousCommands.Path1CommandGroup;
-import frc.robot.commands.autonomousCommands.Path2CommandGroup;
-import frc.robot.commands.autonomousCommands.Path3CommandGroup;
+import frc.robot.commands.autonomousCommands.AutonPathCommand;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -35,9 +33,9 @@ public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
   private Controls driverControls;
   private OperatorInputs operatorInputs;
-  private Path1CommandGroup path1Command;
-  private Path2CommandGroup path2Command;
-  private Path3CommandGroup path3Command;
+  private AutonPathCommand path1Command;
+  private AutonPathCommand path2Command;
+  private AutonPathCommand path3Command;
   private SequentialCommandGroup autonCommandGroup;
 
  // Constants
@@ -97,9 +95,13 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    this.path1Command = new Path1CommandGroup(drive);
-    this.path2Command = new Path2CommandGroup(drive);
-    this.autonCommandGroup = new SequentialCommandGroup(this.path1Command, this.path2Command);
+    this.path2Command = new AutonPathCommand(drive, "PathWeaver/output/path2.wpilib.json");
+    this.path1Command = new AutonPathCommand(drive, "PathWeaver/output/path1.wpilib.json");
+    // this.autonCommandGroup = new SequentialCommandGroup(this.path1Command, this.path2Command);
+    this.autonCommandGroup = new SequentialCommandGroup();
+    this.autonCommandGroup.addCommands(this.path1Command);
+    this.autonCommandGroup.addCommands(this.path2Command);
+    
     //this.path3Command = new Path3CommandGroup(drive);
     //this.trajectoryTutCommand = new TrajectoryTutCommandGroup(drive);
 
