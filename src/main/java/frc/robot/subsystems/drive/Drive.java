@@ -25,7 +25,7 @@ public class Drive extends SubsystemBase{
   private double desiredAngle;
 
   //constants
-  // kP for curvature drive closed loop, in units of max output proportion per (1/m) of curvature error.
+  // kP for curvature drive closed loop, in units of max output proportion per (degrees/m) of curvature error.
   private final double kP_CURVATURE_DRIVE = .0025;
   private final double RAMP_RATE = 1;
   private final double QUICK_TURN_THROTTLE_DEADZONE = 0.1;
@@ -162,7 +162,11 @@ public class Drive extends SubsystemBase{
 
   /**
    * Executes curvatureDrive with closed loop control. Needs to be called
-   * periodically by the command. 
+   * periodically by the command to update the closed loop. 
+   * 
+   * The closed loop works on the difference between the desired curvature
+   * and the measured curvature, using proportional gain only.
+   * 
    * @param throttle - [-1.0, 1.0]. Positive is forward
    * @param curvature - [-1.0, 1.0]. Positive is turning right
    */
@@ -179,32 +183,30 @@ public class Drive extends SubsystemBase{
 
       // To execute closed loop and correct unwanted turning, we need to directly
       // compare a desired quanity to the current quantity to get an error.
-      // The units on desired speeds are hard to put into terms of turning directly,
+      // The units on desired speeds are hard to relate to turning units directly,
       // so we need a way to cancel them out. If we control the curvature rate instead (which
       // is turn rate / linear rate), we can cancel out some of the units into degrees/meter,
       // making comparison easier.
 
-      // Desired curvature rate
+      // Desired curvature rate (angular speed / linear speed)
       double desiredTurnRate = (180 / Math.PI) * (desiredSpeeds.left - desiredSpeeds.right) / (Constants.TRACK_WIDTH_METERS / 2);
       double desiredSpeed = Math.abs(desiredSpeeds.left + desiredSpeeds.right) / 2.0;
-      // account for the possiblity of dividing by zero
+      // account for the possiblity of dividing by zero by setting miniumum "desired speed" value
       double desiredCurvature = desiredTurnRate / Math.max(desiredSpeed, QUICK_TURN_THROTTLE_DEADZONE);
 
-      // Measured curvature rate
+      // Measured curvature rate (angular speed / linear speed)
       double measuredTurnRate = this.gyroscope.getRate();
-      // TODO: make sure encoder speeds are in meters per second
       double measuredSpeed = Math.abs(this.leftGearbox.getEncoderRate() + this.rightGearbox.getEncoderRate()) / 2.0;
-      // account for the possiblity of dividing by zero. Anyting less than 5cm/s is too noisy, set floor
+      // account for the possiblity of dividing by zero. Anything less than 5cm/s or so is too noisy, set floor
       double measuredCurvature = measuredTurnRate/Math.max(measuredSpeed, 0.05);
 
       // Modify wheel speeds based on curvature error
       double turnRateCorrection = (desiredCurvature - measuredCurvature) * kP_CURVATURE_DRIVE;
-
-      // send the modified wheel speeds to the motors
       desiredSpeeds.left += turnRateCorrection;
       desiredSpeeds.right -= turnRateCorrection;
+
+      // send the modified wheel speeds to the motors
       differentialDrive.tankDrive(desiredSpeeds.left, desiredSpeeds.right);
-      
     }
   }
 
