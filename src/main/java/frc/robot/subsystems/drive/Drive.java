@@ -4,6 +4,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.Encoder;
@@ -39,27 +40,28 @@ public class Drive extends SubsystemBase{
 
   private MotorType DRIVE_MOTOR_TYPE = MotorType.kBrushless;
 
-  private boolean gyroDisabled = false;
+  private boolean gyroDisabled = true;
 
   public Drive(Gyroscope gyroscope) {
-    this.leftGearbox = new Gearbox(new Encoder(0, 1), new CANSparkMax(LEFT_BACK_CAN_ID, DRIVE_MOTOR_TYPE),
+    this.leftGearbox = new Gearbox(new Encoder(7, 8), new CANSparkMax(LEFT_BACK_CAN_ID, DRIVE_MOTOR_TYPE),
         new CANSparkMax(LEFT_FRONT_CAN_ID, DRIVE_MOTOR_TYPE), new CANSparkMax(LEFT_MIDDLE_CAN_ID, DRIVE_MOTOR_TYPE));
 
 
     this.rightGearbox = new Gearbox(new Encoder(2, 3), new CANSparkMax(RIGHT_BACK_CAN_ID, DRIVE_MOTOR_TYPE),
         new CANSparkMax(RIGHT_FRONT_CAN_ID, DRIVE_MOTOR_TYPE), new CANSparkMax(RIGHT_MIDDLE_CAN_ID, DRIVE_MOTOR_TYPE));
 
-
     this.leftGearbox.setRampRate(RAMP_RATE);
     this.rightGearbox.setRampRate(RAMP_RATE);
     
     this.differentialDrive = new DifferentialDrive(this.leftGearbox.getMotorControllerGroup(), 
-                                              this.rightGearbox.getMotorControllerGroup());
-
+    this.rightGearbox.getMotorControllerGroup());
     this.gyroscope = gyroscope;
+    
+    this.resetEncoders();
+    this.gyroscope.resetGyro();
     this.differentialDriveOdometry = new DifferentialDriveOdometry(this.gyroscope.getRotation2d());
 
-    leftGearbox.setInverted(true);
+    this.rightGearbox.setInverted(true);
   }
 
   @Override
@@ -72,7 +74,7 @@ public class Drive extends SubsystemBase{
    *
    * @return The pose.
    */
-  public Pose2d getPose2d() {
+  public Pose2d getPose() {
     return this.differentialDriveOdometry.getPoseMeters();
   }
 
@@ -82,13 +84,28 @@ public class Drive extends SubsystemBase{
     this.rightGearbox.resetEncoder();
   }
 
+  public double getLeftEncoderDistance() {
+    return this.leftGearbox.getEncoderDistance();
+  }
+
+  public double getRightEncoderDistance() {
+    return this.rightGearbox.getEncoderDistance();
+  }
+
+  public double getLeftEncodeRate() {
+    return this.leftGearbox.getEncoderRate();
+  }
+
+  public double getRightEncodeRate() {
+    return this.rightGearbox.getEncoderRate();
+  }
   /**
    * Returns the current wheel speeds of the robot.
    *
-   * @return The current wheel speeds.
+   * @return The current wheel speeds, in meters per second
    */
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-    return new DifferentialDriveWheelSpeeds(this.leftGearbox.getEncoderDistance(), this.rightGearbox.getEncoderDistance());
+    return new DifferentialDriveWheelSpeeds(this.leftGearbox.getEncoderRate(), this.rightGearbox.getEncoderRate());
   }
   
   /**
@@ -96,8 +113,8 @@ public class Drive extends SubsystemBase{
    *
    * @param pose The pose to which to set the odometry.
    */
-  public void resetOdementry(Pose2d pose2d) {
-    resetEncoders();
+  public void resetOdometry(Pose2d pose2d) {
+    this.resetEncoders();
     this.differentialDriveOdometry.resetPosition(pose2d, this.gyroscope.getRotation2d());
   }
 
@@ -131,11 +148,11 @@ public class Drive extends SubsystemBase{
     this.differentialDrive.setMaxOutput(maxOutput);
   }
 
-  private void setLeftPower(double power) {
+  public void setLeftPower(double power) {
     this.leftGearbox.setPower(power);
   }
 
-  private void setRightPower(double power) {
+  public void setRightPower(double power) {
     this.rightGearbox.setPower(power);
   }
 
@@ -213,5 +230,5 @@ public class Drive extends SubsystemBase{
 
   public void gyroDisabled(boolean gyroDisabled) {
     this.gyroDisabled = gyroDisabled;
-  }
+  } 
 }

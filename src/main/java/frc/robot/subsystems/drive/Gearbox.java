@@ -2,7 +2,6 @@ package frc.robot.subsystems.drive;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
-
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 
@@ -18,7 +17,7 @@ public class Gearbox {
         // TODO: these values are for a specific robot and specefic encoder
         // that may not be the same for all robots. Change them to reference
         // a value in Constants.java - Egan
-        this.encoder.setDistancePerPulse((6.0 * Math.PI) / 2048.0);
+        this.encoder.setDistancePerPulse((0.1524 * Math.PI) / 2048.0);
         this.resetEncoder();
     }
 

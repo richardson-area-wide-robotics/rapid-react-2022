@@ -1,9 +1,9 @@
 {
-  "counts per rotation": 1024.0,
+  "counts per rotation": 8192.0,
   "encoder type": "roboRIO quadrature",
   "encoding": false,
-  "gearing denominator": 64.0,
-  "gearing numerator": 12.0,
+  "gearing denominator": 1.0,
+  "gearing numerator": 1.0,
   "gyro": "NavX",
   "gyro ctor": "SPI.kMXP",
   "is drivetrain": true,
@@ -13,10 +13,10 @@
     "SPARK MAX (Brushless)"
   ],
   "number of samples per average": 1,
-  "primary encoder inverted": true,
+  "primary encoder inverted": false,
   "primary encoder ports": [
-    2,
-    3
+    7,
+    8
   ],
   "primary motor ports": [
     11,
@@ -24,14 +24,14 @@
     13
   ],
   "primary motors inverted": [
-    true,
-    true,
-    true
+    false,
+    false,
+    false
   ],
-  "secondary encoder inverted": false,
+  "secondary encoder inverted": true,
   "secondary encoder ports": [
-    4,
-    5
+    2,
+    3
   ],
   "secondary motor ports": [
     4,
@@ -39,9 +39,9 @@
     6
   ],
   "secondary motors inverted": [
-    false,
-    false,
-    false
+    true,
+    true,
+    true
   ],
   "velocity measurement period": 100
 }
