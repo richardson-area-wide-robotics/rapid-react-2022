@@ -57,8 +57,7 @@ public class Intake extends SubsystemBase {
     }
 
     /**
-     * gets current position of arm from encoder(degrees from lowest position)
-     * @return
+     * @return current position of arm from encoder(degrees from lowest position)
      */
     public double getArmPosition() {
         return armLeaderMotor.getEncoder().getPosition();
@@ -69,26 +68,24 @@ public class Intake extends SubsystemBase {
     }
 
     /**
-     * takes in double armPower between -1 and 1
-     * @param armPower
+     * @param armPower between -1 and 1
      */
     public void setArmPower(double armPower) {
         armLeaderMotor.set(armPower);
     }
 
     /**
-     * takes in armPosition between 0 and 50(degrees arm will go relative to lowest position)
-     * @param armPosition
+     * @param armPosition between 0 and 50(degrees arm will go relative to lowest position)
      */
     public void setArmPosition(double armPosition) {
         armPIDController.setReference(armPosition, CANSparkMax.ControlType.kPosition);
     }
 
     /**
-     * sends intakePower(between -1 and 1) to intakeMotor
+     * @param intakePower between -1 and 1
+     * sends intakePower to intakeMotor
      * positive power --> intake
      * negative power --> outtake
-     * @param intakePower
      */
     public void setIntakePower(double intakePower) {
         intakeMotor.set(intakePower);
