@@ -9,7 +9,10 @@ jobs:
       with:
         java-version: 11
 
-    - name: Run Format Check (If this step fails run ./gradlew spotlessJavaApply in your powershell/terminal/console etc)
+    - name: Run Format Check 
+    - description: (If this step fails run .\gradlew spotlessJavaApply in Powershell or CMD \
+            (control + ~ to open the console in VSCode)) \
+            ./gradlew spotlessJavaCheck on Unix
       run: ./gradlew spotlessJavaCheck
 
     - name: Execute Gradle build
