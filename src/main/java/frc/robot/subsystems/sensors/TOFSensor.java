@@ -25,7 +25,7 @@ public class TOFSensor {
     public TOFSensor  (DigitalSource digitalSource) {
         this.port = new DutyCycle(digitalSource);
         this.targetDistance = 0;
-        this.setName("TOF Sensor port: " + digitalSource.getPortHandleForRouting());
+     
     }
     public TOFSensor (int DIOPort){ // declaration with an int for the DIO Port, This is mostlikely bad because you want the digital sources to be handled all at once somewhere else
        this(new DigitalInput(DIOPort));   
