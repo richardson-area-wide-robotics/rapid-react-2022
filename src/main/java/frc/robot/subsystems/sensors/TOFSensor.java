@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 *For example, if the measured high time is 10000us, then Distance=10000/10=1000mm
 */
 
-public class TOFSensor  extends SubsystemBase {
+public class TOFSensor {
     //using the GY-53 TOF Sensor in PWM Mode
     //Distance in MM	= getOutput() * .05 *1000 * 100
     //Distance in inches	= Distance in MM /25.4
