@@ -16,20 +16,20 @@ import frc.robot.subsystems.drive.Drive;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class AutonPathCommand extends SequentialCommandGroup {
+public class AutonPathCommand{
 
   private Drive drive;
   private DifferentialDriveVoltageConstraint autoVoltageConstraint;
   private TrajectoryConfig config;
+  private Trajectory trajectory;
   private RamseteCommand ramseteCommand;
 
   // values to rememeber for robot velocity= 3.66 - Acceleration= 1.83 (these are starting values
   // that was changed over time)
-  public final double kMaxSpeedMetersPerSecond = 0.90;
-  public final double kMaxAccelerationMetersPerSecondSquared = 0.40;
-  public final double MAX_VOLTAGE = 10;
-  public Trajectory trajectory = new Trajectory();
-
+  private final double kMaxSpeedMetersPerSecond = 0.90;
+  private final double kMaxAccelerationMetersPerSecondSquared = 0.40;
+  private final double MAX_VOLTAGE = 10;
+  
   public AutonPathCommand(Drive drive, String trajectoryJSON) {
     // Create a voltage constraint to ensure we don't accelerate too fast
     this.drive = drive;
@@ -52,12 +52,16 @@ public class AutonPathCommand extends SequentialCommandGroup {
 
     try {
       Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-      trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+      this.trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
     } catch (IOException ex) {
       DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
     }
 
-    this.ramseteCommand =
+  }
+
+  public RamseteCommand getRamseteCommand() { 
+    
+    return this.ramseteCommand =
         new RamseteCommand(
             trajectory,
             this.drive::getPose,
@@ -73,6 +77,10 @@ public class AutonPathCommand extends SequentialCommandGroup {
             // RamseteCommand passes volts to the callback
             this.drive::tankDriveVolts,
             this.drive);
-    addCommands(this.ramseteCommand);
+
+    
+  }
+  public void resetOdometryToPathStart(){
+    this.drive.resetOdometry(this.trajectory.getInitialPose());
   }
 }
