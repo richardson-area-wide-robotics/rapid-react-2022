@@ -14,7 +14,4 @@ package frc.robot;
  */
 public final class Constants {
 
-    // Drive train related
-    public static final double TRACK_WIDTH_METERS = 0.68;
-
 }
