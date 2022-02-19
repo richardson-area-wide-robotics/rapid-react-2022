@@ -38,7 +38,7 @@ public class Robot extends TimedRobot {
   private AutonPathCommand path3Command;
   private SequentialCommandGroup autonCommandGroup;
 
- // Constants
+  // Constants
   private final int JOYSTICK_PORT_DRIVER = 1;
 
   /**
@@ -65,14 +65,13 @@ public class Robot extends TimedRobot {
     this.path3Command = new AutonPathCommand(drive, "PathWeaver/output/path3.wpilib.json");
     this.autonCommandGroup = new SequentialCommandGroup(this.path1Command, this.path2Command,this.path3Command);
   }
-    
-  private void updateSmartDashboardValues() {   
+
+  private void updateSmartDashboardValues() {
     SmartDashboard.putNumber("right encoder value", this.drive.getRightEncoderDistance());
     SmartDashboard.putNumber("left encoder value", this.drive.getLeftEncoderDistance());
     SmartDashboard.putNumber("gyro angle value", this.gyro.getGyroAngle());
   }
 
-  
   /**
    * This function is called every robot packet, no matter the mode. Use this for items like
    * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
@@ -82,7 +81,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    this.updateSmartDashboardValues(); 
+    this.updateSmartDashboardValues();
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
