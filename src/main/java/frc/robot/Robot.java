@@ -8,9 +8,13 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.autonomousCommands.AutonPathCommand;
 import frc.robot.commands.autonomousCommands.TrajectoryTutCommandGroup;
 import frc.robot.operatorInputs.Controls;
 import frc.robot.operatorInputs.OperatorInputs;
@@ -32,6 +36,20 @@ public class Robot extends TimedRobot {
   private Controls driverControls;
   private OperatorInputs operatorInputs;
 
+  private AutonPathCommand rightSideIntake_intakeAndScore;
+  private AutonPathCommand rightSideIntake_intakeSingleCargo;
+  private AutonPathCommand rightSideIntake_intakeFirstTaxi;
+
+  private AutonPathCommand rightSideScore_backupAndAlign;
+  private AutonPathCommand rightSideScore_intakeTwoCargo;
+  private AutonPathCommand rightSideScore_scoreCargo;
+  private AutonPathCommand rightSideScore_scoreFirstTaxi;
+
+  private SequentialCommandGroup rightSideIntake;
+  private SequentialCommandGroup rightSideScore;
+
+  private SendableChooser<Command> autonomousChooser;
+
   // Constants
   private final int JOYSTICK_PORT_DRIVER = 1;
 
@@ -49,16 +67,56 @@ public class Robot extends TimedRobot {
     this.drive = new Drive(gyro);
     this.operatorInputs = new OperatorInputs(driverControls, drive);
 
-    Shuffleboard.getTab("Drive")
-        .add("gyro angle value", this.gyro.getGyroAngle())
-        .withWidget(BuiltInWidgets.kGyro)
-        .getEntry();
+    this.rightSideIntake_intakeAndScore =
+        new AutonPathCommand(drive, "rightSideIntake/rightSideIntake_intakeAndScore.wpilib.json");
+    this.rightSideIntake_intakeSingleCargo =
+        new AutonPathCommand(
+            drive, "rightSideIntake/rightSideIntake_intakeSingleCargo.wpilib.json");
+    this.rightSideIntake_intakeFirstTaxi =
+        new AutonPathCommand(drive, "rightSideIntake/rightSideIntake_intakeFirstTaxi.wpilib.json");
+
+    this.rightSideScore_backupAndAlign =
+        new AutonPathCommand(drive, "rightSideScore/rightSideScore_backupAndAlign.wpilib.json");
+    this.rightSideScore_intakeTwoCargo =
+        new AutonPathCommand(drive, "rightSideScore/rightSideScore_intakeTwoCargo.wpilib.json");
+    this.rightSideScore_scoreCargo =
+        new AutonPathCommand(drive, "rightSideScore/rightSideScore_scoreCargo.wpilib.json");
+    this.rightSideScore_scoreFirstTaxi =
+        new AutonPathCommand(drive, "rightSideScore/rightSideScore_scoreFirstTaxi.wpilib.json");
+
+    this.rightSideScore =
+        new SequentialCommandGroup(
+            new InstantCommand(() -> this.rightSideScore_backupAndAlign.resetOdometryToPathStart()),
+            this.rightSideScore_backupAndAlign.getRamseteCommand(),
+            this.rightSideScore_intakeTwoCargo.getRamseteCommand(),
+            this.rightSideScore_scoreCargo.getRamseteCommand(),
+            this.rightSideScore_scoreFirstTaxi.getRamseteCommand());
+
+    this.rightSideIntake =
+        new SequentialCommandGroup(
+            new InstantCommand(
+                () -> this.rightSideIntake_intakeAndScore.resetOdometryToPathStart()),
+            this.rightSideIntake_intakeAndScore.getRamseteCommand(),
+            this.rightSideIntake_intakeSingleCargo.getRamseteCommand(),
+            this.rightSideIntake_intakeFirstTaxi.getRamseteCommand());
+
+    this.autonomousChooser = new SendableChooser<>();
+    this.autonomousChooser.setDefaultOption("Right Side Score", this.rightSideScore);
+    this.autonomousChooser.addOption("Right Side Intake", this.rightSideIntake);
+
+    // Put the chooser on the dashboard
+    SmartDashboard.putData(this.autonomousChooser);
   }
 
   private void updateSmartDashboardValues() {
     SmartDashboard.putNumber("right encoder value", this.drive.getRightEncoderDistance());
     SmartDashboard.putNumber("left encoder value", this.drive.getLeftEncoderDistance());
     SmartDashboard.putNumber("gyro angle value", this.gyro.getGyroAngle());
+
+    Shuffleboard.getTab("Drive")
+        .add("gyro angle value", this.gyro.getGyroAngle())
+        .withWidget(BuiltInWidgets.kGyro)
+        .getEntry();
   }
 
   /**
@@ -88,9 +146,7 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    this.trajectoryTutCommand = new TrajectoryTutCommandGroup(drive);
-
-    this.trajectoryTutCommand.schedule();
+    this.autonomousChooser.getSelected().schedule();
   }
 
   /** This function is called periodically during autonomous. */
