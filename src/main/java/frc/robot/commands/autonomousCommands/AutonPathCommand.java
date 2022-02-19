@@ -1,8 +1,5 @@
 package frc.robot.commands.autonomousCommands;
 
-import java.io.IOException;
-import java.nio.file.Path;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -16,24 +13,28 @@ import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.constants.DriveConstants;
 import frc.robot.subsystems.drive.Drive;
+import java.io.IOException;
+import java.nio.file.Path;
 
 public class AutonPathCommand extends SequentialCommandGroup {
 
-  private Drive drive; 
-  private DifferentialDriveVoltageConstraint autoVoltageConstraint; 
+  private Drive drive;
+  private DifferentialDriveVoltageConstraint autoVoltageConstraint;
   private TrajectoryConfig config;
   private RamseteCommand ramseteCommand;
 
-  //values to rememeber for robot velocity= 3.66 - Acceleration= 1.83 (these are starting values that was changed over time)
+  // values to rememeber for robot velocity= 3.66 - Acceleration= 1.83 (these are starting values
+  // that was changed over time)
   public final double kMaxSpeedMetersPerSecond = 0.90;
   public final double kMaxAccelerationMetersPerSecondSquared = 0.40;
   public final double MAX_VOLTAGE = 10;
   public Trajectory trajectory = new Trajectory();
 
-    public AutonPathCommand(Drive drive, String trajectoryJSON) {
-      // Create a voltage constraint to ensure we don't accelerate too fast
-          this.drive = drive;
-          this.autoVoltageConstraint = new DifferentialDriveVoltageConstraint(
+  public AutonPathCommand(Drive drive, String trajectoryJSON) {
+    // Create a voltage constraint to ensure we don't accelerate too fast
+    this.drive = drive;
+    this.autoVoltageConstraint =
+        new DifferentialDriveVoltageConstraint(
             new SimpleMotorFeedforward(
                 DriveConstants.ksVolts,
                 DriveConstants.kvVoltSecondsPerMeter,
@@ -41,25 +42,26 @@ public class AutonPathCommand extends SequentialCommandGroup {
             DriveConstants.kDriveKinematics,
             MAX_VOLTAGE);
 
-          this.config = new TrajectoryConfig(
-            this.kMaxSpeedMetersPerSecond,
-            this.kMaxAccelerationMetersPerSecondSquared)
+    this.config =
+        new TrajectoryConfig(
+                this.kMaxSpeedMetersPerSecond, this.kMaxAccelerationMetersPerSecondSquared)
             // Add kinematics to ensure max speed is actually obeyed
             .setKinematics(DriveConstants.kDriveKinematics)
             // Apply the voltage constraint
-            .addConstraint(autoVoltageConstraint); 
+            .addConstraint(autoVoltageConstraint);
 
-          try {
-            Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-            trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-          } catch (IOException ex) {
-              DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
-          }  
+    try {
+      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
+      trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+    } catch (IOException ex) {
+      DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+    }
 
-            this.ramseteCommand = new RamseteCommand(
+    this.ramseteCommand =
+        new RamseteCommand(
             trajectory,
             this.drive::getPose,
-            new RamseteController(),//(this.kRamseteB, this.kRamseteZeta),
+            new RamseteController(), // (this.kRamseteB, this.kRamseteZeta),
             new SimpleMotorFeedforward(
                 DriveConstants.ksVolts,
                 DriveConstants.kvVoltSecondsPerMeter,
@@ -71,6 +73,6 @@ public class AutonPathCommand extends SequentialCommandGroup {
             // RamseteCommand passes volts to the callback
             this.drive::tankDriveVolts,
             this.drive);
-            addCommands(this.ramseteCommand);
-      }
+    addCommands(this.ramseteCommand);
   }
+}

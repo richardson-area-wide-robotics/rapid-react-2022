@@ -17,23 +17,24 @@ import frc.robot.subsystems.drive.Drive;
 import java.util.List;
 
 public class TrajectoryTutCommandGroup extends SequentialCommandGroup {
-    
-    private Drive drive;
-    private DifferentialDriveVoltageConstraint autoVoltageConstraint; 
-    private TrajectoryConfig config;
-    private Trajectory exampleTrajectory;
-    private RamseteCommand ramseteCommand;
-    
-    private final double kMaxSpeedMetersPerSecond = 0.90;
-    private final double kMaxAccelerationMetersPerSecondSquared = 0.40;
-    private final double MAX_VOLTAGE = 10;
-    private final double kRamseteB = 0.0;
-    private final double kRamseteZeta = 0.0;
-    
-    public TrajectoryTutCommandGroup(Drive drive) {
-         // Create a voltage constraint to ensure we don't accelerate too fast
-        this.drive = drive;
-        this.autoVoltageConstraint = new DifferentialDriveVoltageConstraint(
+
+  private Drive drive;
+  private DifferentialDriveVoltageConstraint autoVoltageConstraint;
+  private TrajectoryConfig config;
+  private Trajectory exampleTrajectory;
+  private RamseteCommand ramseteCommand;
+
+  private final double kMaxSpeedMetersPerSecond = 0.90;
+  private final double kMaxAccelerationMetersPerSecondSquared = 0.40;
+  private final double MAX_VOLTAGE = 10;
+  private final double kRamseteB = 0.0;
+  private final double kRamseteZeta = 0.0;
+
+  public TrajectoryTutCommandGroup(Drive drive) {
+    // Create a voltage constraint to ensure we don't accelerate too fast
+    this.drive = drive;
+    this.autoVoltageConstraint =
+        new DifferentialDriveVoltageConstraint(
             new SimpleMotorFeedforward(
                 DriveConstants.ksVolts,
                 DriveConstants.kvVoltSecondsPerMeter,

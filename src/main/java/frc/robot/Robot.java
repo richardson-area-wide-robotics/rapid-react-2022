@@ -12,12 +12,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.drive.Gyroscope;
+import frc.robot.commands.autonomousCommands.AutonPathCommand;
 import frc.robot.commands.autonomousCommands.TrajectoryTutCommandGroup;
 import frc.robot.operatorInputs.Controls;
 import frc.robot.operatorInputs.OperatorInputs;
-import frc.robot.commands.autonomousCommands.AutonPathCommand;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.Gyroscope;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -33,10 +33,17 @@ public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
   private Controls driverControls;
   private OperatorInputs operatorInputs;
-  private AutonPathCommand path1Command;
-  private AutonPathCommand path2Command;
-  private AutonPathCommand path3Command;
-  private SequentialCommandGroup autonCommandGroup;
+
+  private AutonPathCommand rightSideIntake_intakeAndScore;
+  private AutonPathCommand rightSideIntake_intakeSingleCargo;
+  private AutonPathCommand rightSideIntake_intakeFirstTaxi;
+
+  private AutonPathCommand rightSideScore_backupAndAlign;
+  private AutonPathCommand rightSideScore_intakeTwoCargo;
+  private AutonPathCommand rightSideScore_scoreCargo;
+  private AutonPathCommand rightSideScore_scoreFirstTaxi;
+
+  private SequentialCommandGroup rightSideIntake;
 
   // Constants
   private final int JOYSTICK_PORT_DRIVER = 1;
@@ -55,15 +62,33 @@ public class Robot extends TimedRobot {
     this.drive = new Drive(gyro);
     this.operatorInputs = new OperatorInputs(driverControls, drive);
 
-    Shuffleboard.getTab("Drive") 
-      .add("gyro angle value", this.gyro.getGyroAngle())
-      .withWidget(BuiltInWidgets.kGyro)
-      .getEntry();
+    Shuffleboard.getTab("Drive")
+        .add("gyro angle value", this.gyro.getGyroAngle())
+        .withWidget(BuiltInWidgets.kGyro)
+        .getEntry();
 
-    this.path1Command = new AutonPathCommand(drive, "PathWeaver/output/path1.wpilib.json");
-    this.path2Command = new AutonPathCommand(drive, "PathWeaver/output/path2.wpilib.json");
-    this.path3Command = new AutonPathCommand(drive, "PathWeaver/output/path3.wpilib.json");
-    this.autonCommandGroup = new SequentialCommandGroup(this.path1Command, this.path2Command,this.path3Command);
+    this.rightSideIntake_intakeAndScore =
+        new AutonPathCommand(drive, "rightSideIntake/rightSideIntake_intakeAndScore.wpilib.json");
+    this.rightSideIntake_intakeSingleCargo =
+        new AutonPathCommand(
+            drive, "rightSideIntake/rightSideIntake_intakeSingleCargo.wpilib.json");
+    this.rightSideIntake_intakeFirstTaxi =
+        new AutonPathCommand(drive, "rightSideIntake/rightSideIntake_intakeFirstTaxi.wpilib.json");
+
+    this.rightSideScore_backupAndAlign =
+        new AutonPathCommand(drive, "rightSideScore/rightSideScore_backupAndAlign.wpilib.json");
+    this.rightSideScore_intakeTwoCargo =
+        new AutonPathCommand(drive, "rightSideScore/rightSideScore_intakeTwoCargo.wpilib.json");
+    this.rightSideScore_scoreCargo =
+        new AutonPathCommand(drive, "rightSideScore/rightSideScore_scoreCargo.wpilib.json");
+    this.rightSideScore_scoreFirstTaxi =
+        new AutonPathCommand(drive, "rightSideScore/rightSideScore_scoreFirstTaxi.wpilib.json");
+
+    this.rightSideIntake =
+        new SequentialCommandGroup(
+            this.rightSideIntake_intakeAndScore,
+            this.rightSideIntake_intakeSingleCargo,
+            this.rightSideIntake_intakeFirstTaxi);
   }
 
   private void updateSmartDashboardValues() {
@@ -99,9 +124,9 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    this.drive.resetOdometry(this.path1Command.trajectory.getInitialPose());
+    this.drive.resetOdometry(this.rightSideIntake_intakeAndScore.trajectory.getInitialPose());
 
-    this.autonCommandGroup.schedule();
+    this.rightSideIntake.schedule();
   }
 
   /** This function is called periodically during autonomous. */
