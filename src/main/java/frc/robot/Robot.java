@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.autonomousCommands.AutonPathCommand;
 import frc.robot.commands.autonomousCommands.TrajectoryTutCommandGroup;
@@ -21,7 +20,6 @@ import frc.robot.operatorInputs.Controls;
 import frc.robot.operatorInputs.OperatorInputs;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Gyroscope;
-import java.util.Map;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -91,18 +89,21 @@ public class Robot extends TimedRobot {
     this.rightSideScore_scoreFirstTaxi =
         new AutonPathCommand(drive, "rightSideScore/rightSideScore_scoreFirstTaxi.wpilib.json");
 
-    this.rightSideScore = new SequentialCommandGroup(
-                      new InstantCommand(()->this.rightSideScore_backupAndAlign.resetOdometryToPathStart()),
-                      this.rightSideScore_backupAndAlign.getRamseteCommand(),
-                      this.rightSideScore_intakeTwoCargo.getRamseteCommand(),
-                      this.rightSideScore_scoreCargo.getRamseteCommand(),
-                      this.rightSideScore_scoreFirstTaxi.getRamseteCommand());
+    this.rightSideScore =
+        new SequentialCommandGroup(
+            new InstantCommand(() -> this.rightSideScore_backupAndAlign.resetOdometryToPathStart()),
+            this.rightSideScore_backupAndAlign.getRamseteCommand(),
+            this.rightSideScore_intakeTwoCargo.getRamseteCommand(),
+            this.rightSideScore_scoreCargo.getRamseteCommand(),
+            this.rightSideScore_scoreFirstTaxi.getRamseteCommand());
 
-    this.rightSideIntake = new SequentialCommandGroup(
-                      new InstantCommand(()->this.rightSideIntake_intakeAndScore.resetOdometryToPathStart()),
-                      this.rightSideIntake_intakeAndScore.getRamseteCommand(),
-                      this.rightSideIntake_intakeSingleCargo.getRamseteCommand(),
-                      this.rightSideIntake_intakeFirstTaxi.getRamseteCommand());
+    this.rightSideIntake =
+        new SequentialCommandGroup(
+            new InstantCommand(
+                () -> this.rightSideIntake_intakeAndScore.resetOdometryToPathStart()),
+            this.rightSideIntake_intakeAndScore.getRamseteCommand(),
+            this.rightSideIntake_intakeSingleCargo.getRamseteCommand(),
+            this.rightSideIntake_intakeFirstTaxi.getRamseteCommand());
 
     this.autonomousChooser = new SendableChooser<>();
     this.autonomousChooser.setDefaultOption("Right Side Score", this.rightSideScore);
@@ -111,7 +112,6 @@ public class Robot extends TimedRobot {
     // Put the chooser on the dashboard
     SmartDashboard.putData(this.autonomousChooser);
   }
-
 
   private void updateSmartDashboardValues() {
     SmartDashboard.putNumber("right encoder value", this.drive.getRightEncoderDistance());
