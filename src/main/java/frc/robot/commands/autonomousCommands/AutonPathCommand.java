@@ -19,16 +19,16 @@ import frc.robot.subsystems.drive.Drive;
 
 public class AutonPathCommand extends SequentialCommandGroup {
 
-private Drive drive; 
-private DifferentialDriveVoltageConstraint autoVoltageConstraint; 
-private TrajectoryConfig config;
-private RamseteCommand ramseteCommand;
+  private Drive drive; 
+  private DifferentialDriveVoltageConstraint autoVoltageConstraint; 
+  private TrajectoryConfig config;
+  private RamseteCommand ramseteCommand;
 
-//values to rememeber for robot velocity= 3.66 - Acceleration= 1.83 (these are starting values that was changed over time)
-public final double kMaxSpeedMetersPerSecond = 0.90;
-public final double kMaxAccelerationMetersPerSecondSquared = 0.40;
-public final double MAX_VOLTAGE = 10;
-public Trajectory trajectory = new Trajectory();
+  //values to rememeber for robot velocity= 3.66 - Acceleration= 1.83 (these are starting values that was changed over time)
+  public final double kMaxSpeedMetersPerSecond = 0.90;
+  public final double kMaxAccelerationMetersPerSecondSquared = 0.40;
+  public final double MAX_VOLTAGE = 10;
+  public Trajectory trajectory = new Trajectory();
 
     public AutonPathCommand(Drive drive, String trajectoryJSON) {
       // Create a voltage constraint to ensure we don't accelerate too fast
@@ -50,27 +50,27 @@ public Trajectory trajectory = new Trajectory();
             .addConstraint(autoVoltageConstraint); 
 
           try {
-          Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-          trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+            Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
+            trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
           } catch (IOException ex) {
-            DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+              DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
           }  
 
-          this.ramseteCommand = new RamseteCommand(
-          trajectory,
-          this.drive::getPose,
-          new RamseteController(),//(this.kRamseteB, this.kRamseteZeta),
-          new SimpleMotorFeedforward(
-              DriveConstants.ksVolts,
-              DriveConstants.kvVoltSecondsPerMeter,
-              DriveConstants.kaVoltSecondsSquaredPerMeter),
-          DriveConstants.kDriveKinematics,
-          this.drive::getWheelSpeeds,
-          new PIDController(DriveConstants.kPDriveVel, 0, 0),
-          new PIDController(DriveConstants.kPDriveVel, 0, 0),
-          // RamseteCommand passes volts to the callback
-          this.drive::tankDriveVolts,
-          this.drive);
-          addCommands(this.ramseteCommand);
+            this.ramseteCommand = new RamseteCommand(
+            trajectory,
+            this.drive::getPose,
+            new RamseteController(),//(this.kRamseteB, this.kRamseteZeta),
+            new SimpleMotorFeedforward(
+                DriveConstants.ksVolts,
+                DriveConstants.kvVoltSecondsPerMeter,
+                DriveConstants.kaVoltSecondsSquaredPerMeter),
+            DriveConstants.kDriveKinematics,
+            this.drive::getWheelSpeeds,
+            new PIDController(DriveConstants.kPDriveVel, 0, 0),
+            new PIDController(DriveConstants.kPDriveVel, 0, 0),
+            // RamseteCommand passes volts to the callback
+            this.drive::tankDriveVolts,
+            this.drive);
+            addCommands(this.ramseteCommand);
       }
   }

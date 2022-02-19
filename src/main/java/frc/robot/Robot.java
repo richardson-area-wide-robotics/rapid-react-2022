@@ -59,6 +59,11 @@ public class Robot extends TimedRobot {
       .add("gyro angle value", this.gyro.getGyroAngle())
       .withWidget(BuiltInWidgets.kGyro)
       .getEntry();
+
+    this.path1Command = new AutonPathCommand(drive, "PathWeaver/output/path1.wpilib.json");
+    this.path2Command = new AutonPathCommand(drive, "PathWeaver/output/path2.wpilib.json");
+    this.path3Command = new AutonPathCommand(drive, "PathWeaver/output/path3.wpilib.json");
+    this.autonCommandGroup = new SequentialCommandGroup(this.path1Command, this.path2Command,this.path3Command);
   }
     
   private void updateSmartDashboardValues() {   
@@ -95,12 +100,8 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    this.path1Command = new AutonPathCommand(drive, "PathWeaver/output/path1.wpilib.json");
-    this.path2Command = new AutonPathCommand(drive, "PathWeaver/output/path2.wpilib.json");
-    this.path3Command = new AutonPathCommand(drive, "PathWeaver/output/path3.wpilib.json");
     this.drive.resetOdometry(this.path1Command.trajectory.getInitialPose());
-    this.autonCommandGroup = new SequentialCommandGroup(this.path1Command, this.path2Command);
-    
+
     this.autonCommandGroup.schedule();
   }
 
