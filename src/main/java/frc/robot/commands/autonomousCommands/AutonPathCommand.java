@@ -25,9 +25,6 @@ public class AutonPathCommand {
 
   // values to rememeber for robot velocity= 3.66 - Acceleration= 1.83 (these are starting values
   // that was changed over time)
-  private final double kMaxSpeedMetersPerSecond = 0.90;
-  private final double kMaxAccelerationMetersPerSecondSquared = 0.40;
-  private final double MAX_VOLTAGE = 10;
 
   public AutonPathCommand(Drive drive, String trajectoryJSON) {
     // Create a voltage constraint to ensure we don't accelerate too fast
