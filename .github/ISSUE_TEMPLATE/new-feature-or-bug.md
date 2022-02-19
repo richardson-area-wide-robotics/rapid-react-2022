@@ -16,5 +16,6 @@ Don't forget to:
 - Create a pull request when complete. 
   - The description should include a brief description and say `This resolves #TICKETNUM.`
   - The build should pass -- make sure you get a ✅ in the pull request. If ❌, you need to ensure your code compiles.
+    - If the `Run Format Check` fails ❌, you need to run `.\gradlew spotlessJavaApply` in Powershell/CMD (cntl ~ to open the console in VSCode)
 
 ## Acceptance Criteria:

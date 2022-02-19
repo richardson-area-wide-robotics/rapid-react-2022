@@ -2,7 +2,6 @@ package frc.robot.subsystems.drive;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
@@ -40,17 +39,27 @@ public class Drive extends SubsystemBase {
   private boolean gyroDisabled = false;
 
   public Drive(Gyroscope gyroscope) {
-    this.leftGearbox = new Gearbox(new Encoder(7, 8), new CANSparkMax(LEFT_BACK_CAN_ID, DRIVE_MOTOR_TYPE),
-        new CANSparkMax(LEFT_FRONT_CAN_ID, DRIVE_MOTOR_TYPE), new CANSparkMax(LEFT_MIDDLE_CAN_ID, DRIVE_MOTOR_TYPE));
+    this.leftGearbox =
+        new Gearbox(
+            new Encoder(7, 8),
+            new CANSparkMax(LEFT_BACK_CAN_ID, DRIVE_MOTOR_TYPE),
+            new CANSparkMax(LEFT_FRONT_CAN_ID, DRIVE_MOTOR_TYPE),
+            new CANSparkMax(LEFT_MIDDLE_CAN_ID, DRIVE_MOTOR_TYPE));
 
-    this.rightGearbox = new Gearbox(new Encoder(2, 3), new CANSparkMax(RIGHT_BACK_CAN_ID, DRIVE_MOTOR_TYPE),
-        new CANSparkMax(RIGHT_FRONT_CAN_ID, DRIVE_MOTOR_TYPE), new CANSparkMax(RIGHT_MIDDLE_CAN_ID, DRIVE_MOTOR_TYPE));
+    this.rightGearbox =
+        new Gearbox(
+            new Encoder(2, 3),
+            new CANSparkMax(RIGHT_BACK_CAN_ID, DRIVE_MOTOR_TYPE),
+            new CANSparkMax(RIGHT_FRONT_CAN_ID, DRIVE_MOTOR_TYPE),
+            new CANSparkMax(RIGHT_MIDDLE_CAN_ID, DRIVE_MOTOR_TYPE));
 
     this.leftGearbox.setRampRate(RAMP_RATE);
     this.rightGearbox.setRampRate(RAMP_RATE);
 
-    this.differentialDrive = new DifferentialDrive(this.leftGearbox.getMotorControllerGroup(),
-        this.rightGearbox.getMotorControllerGroup());
+    this.differentialDrive =
+        new DifferentialDrive(
+            this.leftGearbox.getMotorControllerGroup(),
+            this.rightGearbox.getMotorControllerGroup());
     this.gyroscope = gyroscope;
 
     this.resetEncoders();
@@ -62,15 +71,13 @@ public class Drive extends SubsystemBase {
 
   @Override
   public void periodic() {
-    this.differentialDriveOdometry.update(this.gyroscope.getRotation2d(), this.leftGearbox.getEncoderDistance(),
+    this.differentialDriveOdometry.update(
+        this.gyroscope.getRotation2d(),
+        this.leftGearbox.getEncoderDistance(),
         this.rightGearbox.getEncoderDistance());
   }
 
-  /**
-   * Returns the currently-estimated pose of the robot.
-   *
-   * @return The pose.
-   */
+  /** Returns the currently-estimated pose of the robot. */
   public Pose2d getPose() {
     return this.differentialDriveOdometry.getPoseMeters();
   }
@@ -103,7 +110,8 @@ public class Drive extends SubsystemBase {
    * @return The current wheel speeds, in meters per second
    */
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-    return new DifferentialDriveWheelSpeeds(this.leftGearbox.getEncoderRate(), this.rightGearbox.getEncoderRate());
+    return new DifferentialDriveWheelSpeeds(
+        this.leftGearbox.getEncoderRate(), this.rightGearbox.getEncoderRate());
   }
 
   /**
@@ -119,7 +127,7 @@ public class Drive extends SubsystemBase {
   /**
    * Controls the left and right sides of the drive directly with voltages.
    *
-   * @param leftVolts  the commanded left output
+   * @param leftVolts the commanded left output
    * @param rightVolts the commanded right output
    */
   public void tankDriveVolts(double leftVolts, double rightVolts) {
@@ -138,8 +146,7 @@ public class Drive extends SubsystemBase {
   }
 
   /**
-   * Sets the max output of the drive. Useful for scaling the drive to drive more
-   * slowly.
+   * Sets the max output of the drive. Useful for scaling the drive to drive more slowly.
    *
    * @param maxOutput the maximum output to which the drive will be constrained
    */
@@ -160,13 +167,13 @@ public class Drive extends SubsystemBase {
   }
 
   /**
-   * Executes curvatureDrive with closed loop control. Needs to be called
-   * periodically by the command to update the closed loop.
-   * 
-   * The closed loop works on the difference between the desired curvature
-   * and the measured curvature, using proportional gain only.
-   * 
-   * @param throttle  - [-1.0, 1.0]. Positive is forward
+   * Executes curvatureDrive with closed loop control. Needs to be called periodically by the
+   * command to update the closed loop.
+   *
+   * <p>The closed loop works on the difference between the desired curvature and the measured
+   * curvature, using proportional gain only.
+   *
+   * @param throttle - [-1.0, 1.0]. Positive is forward
    * @param curvature - [-1.0, 1.0]. Positive is turning right
    */
   public void curvatureDrive(double throttle, double curvature) {
@@ -175,7 +182,8 @@ public class Drive extends SubsystemBase {
     boolean turnInPlace = (Math.abs(throttle) < QUICK_TURN_THROTTLE_DEADZONE);
 
     // Calculate ideal left and right speeds based on curvature
-    WheelSpeeds desiredSpeeds = DifferentialDrive.curvatureDriveIK(throttle, curvature, turnInPlace);
+    WheelSpeeds desiredSpeeds =
+        DifferentialDrive.curvatureDriveIK(throttle, curvature, turnInPlace);
 
     // Execute closed loop only on curvature and only if enabled
     if (!turnInPlace && !gyroDisabled) {
@@ -187,16 +195,20 @@ public class Drive extends SubsystemBase {
       // degrees/meter, making comparison easier.
 
       // Desired curvature rate (angular speed / linear speed)
-      double desiredTurnRate = (180 / Math.PI) * (desiredSpeeds.left - desiredSpeeds.right)
-          / (DriveConstants.kDriveTrackWidthMeters / 2);
+      double desiredTurnRate =
+          (180 / Math.PI)
+              * (desiredSpeeds.left - desiredSpeeds.right)
+              / (DriveConstants.kDriveTrackWidthMeters / 2);
       double desiredSpeed = Math.abs(desiredSpeeds.left + desiredSpeeds.right) / 2.0;
       // account for the possiblity of dividing by zero by setting miniumum "desired
       // speed" value
-      double desiredCurvature = desiredTurnRate / Math.max(desiredSpeed, QUICK_TURN_THROTTLE_DEADZONE);
+      double desiredCurvature =
+          desiredTurnRate / Math.max(desiredSpeed, QUICK_TURN_THROTTLE_DEADZONE);
 
       // Measured curvature rate (angular speed / linear speed)
       double measuredTurnRate = this.gyroscope.getRate();
-      double measuredSpeed = Math.abs(this.leftGearbox.getEncoderRate() + this.rightGearbox.getEncoderRate()) / 2.0;
+      double measuredSpeed =
+          Math.abs(this.leftGearbox.getEncoderRate() + this.rightGearbox.getEncoderRate()) / 2.0;
       // account for the possiblity of dividing by zero. Anything less than 5cm/s or
       // so is too noisy, set floor
       double measuredCurvature = measuredTurnRate / Math.max(measuredSpeed, 0.05);
@@ -205,9 +217,6 @@ public class Drive extends SubsystemBase {
       double turnRateCorrection = (desiredCurvature - measuredCurvature) * kP_CURVATURE_DRIVE;
       desiredSpeeds.left += turnRateCorrection;
       desiredSpeeds.right -= turnRateCorrection;
-
-      System.out.println("Error: "+ (desiredCurvature - measuredCurvature));
-      System.out.println("Motor sign: "+(desiredTurnRate/Math.abs(desiredTurnRate))+" Gyro Sign: "+(measuredTurnRate/Math.abs(measuredTurnRate)));
     }
 
     // send the modified wheel speeds to the motors.
