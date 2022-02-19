@@ -67,11 +67,6 @@ public class Robot extends TimedRobot {
     this.drive = new Drive(gyro);
     this.operatorInputs = new OperatorInputs(driverControls, drive);
 
-    Shuffleboard.getTab("Drive")
-        .add("gyro angle value", this.gyro.getGyroAngle())
-        .withWidget(BuiltInWidgets.kGyro)
-        .getEntry();
-
     this.rightSideIntake_intakeAndScore =
         new AutonPathCommand(drive, "rightSideIntake/rightSideIntake_intakeAndScore.wpilib.json");
     this.rightSideIntake_intakeSingleCargo =
@@ -117,6 +112,11 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("right encoder value", this.drive.getRightEncoderDistance());
     SmartDashboard.putNumber("left encoder value", this.drive.getLeftEncoderDistance());
     SmartDashboard.putNumber("gyro angle value", this.gyro.getGyroAngle());
+
+    Shuffleboard.getTab("Drive")
+        .add("gyro angle value", this.gyro.getGyroAngle())
+        .withWidget(BuiltInWidgets.kGyro)
+        .getEntry();
   }
 
   /**
