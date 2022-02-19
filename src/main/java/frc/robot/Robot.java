@@ -18,6 +18,7 @@ import frc.robot.commands.autonomousCommands.AutonPathCommand;
 import frc.robot.commands.autonomousCommands.TrajectoryTutCommandGroup;
 import frc.robot.operatorInputs.Controls;
 import frc.robot.operatorInputs.OperatorInputs;
+import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Gyroscope;
 
@@ -35,6 +36,7 @@ public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
   private Controls driverControls;
   private OperatorInputs operatorInputs;
+  private Arm arm;
 
   private AutonPathCommand rightSideIntake_intakeAndScore;
   private AutonPathCommand rightSideIntake_intakeSingleCargo;
@@ -65,7 +67,7 @@ public class Robot extends TimedRobot {
     this.driverControls = new Controls(new Joystick(JOYSTICK_PORT_DRIVER));
     this.gyro = new Gyroscope();
     this.drive = new Drive(gyro);
-    this.operatorInputs = new OperatorInputs(driverControls, drive);
+    this.operatorInputs = new OperatorInputs(driverControls, drive, arm);
 
     this.rightSideIntake_intakeAndScore =
         new AutonPathCommand(drive, "rightSideIntake/rightSideIntake_intakeAndScore.wpilib.json");
