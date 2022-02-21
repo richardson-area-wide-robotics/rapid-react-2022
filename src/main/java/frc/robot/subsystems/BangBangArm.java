@@ -42,6 +42,10 @@ public class BangBangArm extends SubsystemBase {
     return this.rightMotor.getEncoder().getPosition();
   }
 
+  public double getMeasurement() {
+    return this.getPosition();
+  }
+
   public Boolean atForwardLimit() {
     return this.rightMotor.getFault(CANSparkMax.FaultID.kSoftLimitFwd);
   }
@@ -52,6 +56,14 @@ public class BangBangArm extends SubsystemBase {
 
   public Boolean atReverseLimit() {
     return this.rightMotor.getFault(CANSparkMax.FaultID.kSoftLimitRev);
+  }
+
+  public void moveArmToPosition(Arm.armPosition position) {
+    if (position == Arm.armPosition.INTAKE_ARM_POSITION) {
+      this.runToScore();
+    } else if (position == Arm.armPosition.SCORING_ARM_POSITION) {
+      this.runToIntake();
+    }
   }
 
   public void toggleArmPosition() {
