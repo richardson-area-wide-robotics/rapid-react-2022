@@ -13,9 +13,10 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-    public final static double ARM_SPROCKET_RATIO = 16.0/64.0;  //64-tooth to 16-tooth reduction
-    public final static double ARM_PLANETARY_RATIO = 1.0/36.0;  //36 to 1 reduction
-    public final static double NEO_REVOLUTIONS_TO_DEGREES = 1.0;  //conversion from revolutions to degrees for a neo motor
-    public final static double ARM_POSITION_CONVERISON_FACTOR = (ARM_SPROCKET_RATIO * ARM_PLANETARY_RATIO 
-    * NEO_REVOLUTIONS_TO_DEGREES);
+  public static final double ARM_SPROCKET_RATIO = 16.0 / 64.0; // 64-tooth to 16-tooth reduction
+  public static final double ARM_PLANETARY_RATIO = 1.0 / 36.0; // 36 to 1 reduction
+  public static final double NEO_REVOLUTIONS_TO_DEGREES =
+      1.0; // conversion from revolutions to degrees for a neo motor
+  public static final double ARM_POSITION_CONVERISON_FACTOR =
+      (ARM_SPROCKET_RATIO * ARM_PLANETARY_RATIO * NEO_REVOLUTIONS_TO_DEGREES);
 }
