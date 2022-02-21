@@ -15,6 +15,11 @@ public class BangBangArm extends SubsystemBase {
   private final double FORWARD_SPEED = 0.37;
   private final double RAMPRATE = 0.1;
 
+  enum armPosition {
+    INTAKE_ARM_POSITION,
+    SCORING_ARM_POSITION
+  }
+
   public BangBangArm(
       int rightMotorCANID, int leftMotorCANID, Boolean invertRightMotor, Boolean invertLeftMotor) {
     this.rightMotor = new CANSparkMax(rightMotorCANID, MotorType.kBrushless);
@@ -42,6 +47,10 @@ public class BangBangArm extends SubsystemBase {
     return this.rightMotor.getEncoder().getPosition();
   }
 
+  public double getMeasurement() {
+    return this.getPosition();
+  }
+
   public Boolean atForwardLimit() {
     return this.rightMotor.getFault(CANSparkMax.FaultID.kSoftLimitFwd);
   }
@@ -52,6 +61,14 @@ public class BangBangArm extends SubsystemBase {
 
   public Boolean atReverseLimit() {
     return this.rightMotor.getFault(CANSparkMax.FaultID.kSoftLimitRev);
+  }
+
+  public void moveArmToPosition(armPosition position) {
+    if (position == armPosition.INTAKE_ARM_POSITION) {
+      this.runToScore();
+    } else if (position == armPosition.SCORING_ARM_POSITION) {
+      this.runToIntake();
+    }
   }
 
   public void toggleArmPosition() {
