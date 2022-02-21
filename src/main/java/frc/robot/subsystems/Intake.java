@@ -10,7 +10,7 @@ public class Intake {
         
         final private double REVERSE_SPEED = 0;
         final private double FORWARD_SPEED = 0;
-        final private double RAMPRATE =0;
+        final private double RAMPRATE =0; 
         
         public Intake(int intakeMotorCANID,  Boolean invertIntakeMotor )
         {
