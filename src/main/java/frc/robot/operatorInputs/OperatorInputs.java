@@ -11,7 +11,8 @@ public class OperatorInputs {
 
   private final double JOYSTICK_DEADZONE = 0.1;
 
-  public OperatorInputs(Controls driverControls, Drive drive, Arm arm, BangBangArm bangArm, Intake intake) {
+  public OperatorInputs(
+      Controls driverControls, Drive drive, Arm arm, BangBangArm bangArm, Intake intake) {
 
     // Driver commands
     drive.setDefaultCommand(
@@ -27,9 +28,13 @@ public class OperatorInputs {
     //      .getJoystickYButton()
     //      .whenPressed(new InstantCommand(() -> arm.toggleArmPosition(), arm));
 
-    driverControls.getJoystickXButton().whenPressed(new InstantCommand(() -> bangArm.toggleArmPosition(), bangArm));
+    driverControls
+        .getJoystickXButton()
+        .whenPressed(new InstantCommand(() -> bangArm.toggleArmPosition(), bangArm));
 
     driverControls.getJoystickBButton().whenHeld(new InstantCommand(() -> intake.gather(), intake));
-    driverControls.getJoystickAButton().whenHeld(new InstantCommand(() -> intake.outtake(), intake));
+    driverControls
+        .getJoystickAButton()
+        .whenHeld(new InstantCommand(() -> intake.outtake(), intake));
   }
 }

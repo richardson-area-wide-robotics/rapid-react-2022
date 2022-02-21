@@ -12,8 +12,8 @@ public class Arm extends ProfiledPIDSubsystem {
   private final int LEFT_CAN_ID = 7;
   private final int RIGHT_CAN_ID = 8;
   private MotorType ARM_MOTOR_TYPE = MotorType.kBrushless;
-  private final double K_ARM_SCORING_RADS = -1;//-1.257;
-  private final double K_ARM_INTAKE_RADS = 1;//1.257;
+  private final double K_ARM_SCORING_RADS = -1; // -1.257;
+  private final double K_ARM_INTAKE_RADS = 1; // 1.257;
   private double kPositionConversionFactor = 1.0;
   private static double kMaxAccelerationRadPerSecSquared = 0.01;
   private static double kMaxVelocityRadPerSecond = 0.1;
@@ -61,7 +61,7 @@ public class Arm extends ProfiledPIDSubsystem {
     // Calculate the feedforward from the sepoint
     double feedforward = m_feedforward.calculate(setpoint.position, setpoint.velocity);
     // Add the feedforward to the PID output to get the motor output
-    System.out.println(output+feedforward);
+    System.out.println(output + feedforward);
     this.rightMotor.setVoltage(output + feedforward);
   }
 
