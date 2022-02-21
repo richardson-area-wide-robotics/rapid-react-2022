@@ -49,10 +49,25 @@ public class BangBangArm extends SubsystemBase {
   {
     return this.rightMotor.getFault(CANSparkMax.FaultID.kSoftLimitFwd);
   }
+  public double getSpeed()
+  {
+    return this.rightMotor.get();
+  }
   
   public Boolean atReverseLimit()
   {
     return this.rightMotor.getFault(CANSparkMax.FaultID.kSoftLimitRev);
+  }
+
+  public void toggleArmPosition() {
+    if(this.getSpeed()==FORWARD_SPEED)
+    {
+      this.runToIntake();
+    }
+    else  // if its already in intake position go to score position. if its never been in a position also go to score position. 
+    {
+      this.runToScore();
+    }
   }
 
 }
