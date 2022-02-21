@@ -12,23 +12,23 @@ public class Arm extends ProfiledPIDSubsystem {
   private final int LEFT_CAN_ID = 7;
   private final int RIGHT_CAN_ID = 8;
   private MotorType ARM_MOTOR_TYPE = MotorType.kBrushless;
-  private final double K_ARM_SCORING_RADS = 0.0;
-  private final double K_ARM_INTAKE_RADS = 0.0;
+  private final double K_ARM_SCORING_RADS = -1;//-1.257;
+  private final double K_ARM_INTAKE_RADS = 1;//1.257;
   private double kPositionConversionFactor = 1.0;
-  private static double kMaxAccelerationRadPerSecSquared = 0.0;
-  private static double kMaxVelocityRadPerSecond = 0.0;
-  private double kAVoltSecondSquaredPerRad = 0.0;
-  private double kVVoltSecondPerRad = 0.0;
+  private static double kMaxAccelerationRadPerSecSquared = 0.01;
+  private static double kMaxVelocityRadPerSecond = 0.1;
+  private double kAVoltSecondSquaredPerRad = -1.0431;
+  private double kVVoltSecondPerRad = 4.1659;
   private double kGVolts = 0.0;
-  private double kSVolts = 0.0;
-  private static double kP = 0.0;
+  private double kSVolts = 0.0052997;
+  private static double kP = 18.555;
   // private DigitalInput lowerPostionHomeSensor; //this is a planned upgrade
   private enum armPosition {
     INTAKE_ARM_POSITION,
     SCORING_ARM_POSITION
   }
 
-  private armPosition goalArmPosition;
+  private armPosition goalArmPosition = armPosition.INTAKE_ARM_POSITION;
 
   private CANSparkMax leftMotor;
   private CANSparkMax rightMotor;
@@ -54,8 +54,6 @@ public class Arm extends ProfiledPIDSubsystem {
     this.leftMotor.follow(rightMotor, true);
 
     this.rightMotor.getEncoder().setPositionConversionFactor(this.kPositionConversionFactor);
-    // move arm to scoring position
-    moveArmToPosition(armPosition.SCORING_ARM_POSITION);
   }
 
   @Override
@@ -63,6 +61,7 @@ public class Arm extends ProfiledPIDSubsystem {
     // Calculate the feedforward from the sepoint
     double feedforward = m_feedforward.calculate(setpoint.position, setpoint.velocity);
     // Add the feedforward to the PID output to get the motor output
+    System.out.println(output+feedforward);
     this.rightMotor.setVoltage(output + feedforward);
   }
 
@@ -79,9 +78,11 @@ public class Arm extends ProfiledPIDSubsystem {
       setGoal(this.K_ARM_SCORING_RADS);
     }
     goalArmPosition = position;
+    enable();
   }
 
   public void toggleArmPosition() {
+    System.out.println(goalArmPosition);
     if (goalArmPosition == armPosition.INTAKE_ARM_POSITION) {
       moveArmToPosition(armPosition.SCORING_ARM_POSITION);
     }
