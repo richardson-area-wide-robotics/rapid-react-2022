@@ -39,7 +39,7 @@ public class Hangar extends SubsystemBase {
      * opens or closes solenoids depending on direction
      * @param midOnOrOff (which direction are we rotating the hooks)
      */
-    public void RotateHooksMid(boolean midOnOrOff) {
+    public void rotateHooksMid(boolean midOnOrOff) {
         if (midOnOrOff == true) {
             leftMidPneumatic.set(DoubleSolenoid.Value.kForward);
             rightMidPneumatic.set(DoubleSolenoid.Value.kForward);
@@ -55,7 +55,7 @@ public class Hangar extends SubsystemBase {
      * opens or closes solenoids depending on direction
      * @param highOnOrOff (which direction are we rotating the hooks)
      */
-    public void RotateHooksHigh(boolean highOnOrOff) {
+    public void rotateHooksHigh(boolean highOnOrOff) {
         if (highOnOrOff == true) {
             leftHighPneumatic.set(DoubleSolenoid.Value.kForward);
             rightHighPneumatic.set(DoubleSolenoid.Value.kForward);
@@ -70,7 +70,7 @@ public class Hangar extends SubsystemBase {
      * sensors not figured out yet
      * @return whether the hooks are secured on the mid bar
      */
-    public boolean IsGrabbingMidBar() {
+    public boolean isGrabbingMidBar() {
         return false;
     }
 
@@ -78,7 +78,7 @@ public class Hangar extends SubsystemBase {
      * sensors not figured out yet
      * @return whether the hooks are secured on the high bar
      */
-    public boolean IsGrabbingHighBar() {
+    public boolean isGrabbingHighBar() {
         return false;
     }
 
@@ -86,7 +86,7 @@ public class Hangar extends SubsystemBase {
      * sensors not figured out yet
      * @return whether the robot is fully on the ground
      */
-    public boolean IsRobotOnGround() {
+    public boolean isRobotOnGround() {
         return false;
     }
 
