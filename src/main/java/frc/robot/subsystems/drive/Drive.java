@@ -7,7 +7,9 @@ import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.DriveConstants;
 
 public class Drive extends SubsystemBase {
 
@@ -17,13 +19,12 @@ public class Drive extends SubsystemBase {
   private DifferentialDrive differentialDrive;
   private DifferentialDriveOdometry differentialDriveOdometry;
 
-  // variables
-  private double desiredAngle;
-
   // constants
-  private final double P_VALUE = .0025;
-  private final double RAMP_RATE = 1;
+  // kP for curvature drive closed loop, in units of max output proportion per
+  // (degrees/m) of curvature error.
+  private final double kP_CURVATURE_DRIVE = .005;
   private final double QUICK_TURN_THROTTLE_DEADZONE = 0.1;
+  private final double RAMP_RATE = 1;
   // left gear box CAN ids
   private final int LEFT_BACK_CAN_ID = 11;
   private final int LEFT_FRONT_CAN_ID = 12;
@@ -35,7 +36,7 @@ public class Drive extends SubsystemBase {
 
   private MotorType DRIVE_MOTOR_TYPE = MotorType.kBrushless;
 
-  private boolean gyroDisabled = true;
+  private boolean gyroDisabled = false;
 
   public Drive(Gyroscope gyroscope) {
     this.leftGearbox =
@@ -76,11 +77,7 @@ public class Drive extends SubsystemBase {
         this.rightGearbox.getEncoderDistance());
   }
 
-  /**
-   * Returns the currently-estimated pose of the robot.
-   *
-   * @return The pose.
-   */
+  /** Returns the currently-estimated pose of the robot. */
   public Pose2d getPose() {
     return this.differentialDriveOdometry.getPoseMeters();
   }
@@ -106,6 +103,7 @@ public class Drive extends SubsystemBase {
   public double getRightEncodeRate() {
     return this.rightGearbox.getEncoderRate();
   }
+
   /**
    * Returns the current wheel speeds of the robot.
    *
@@ -168,19 +166,61 @@ public class Drive extends SubsystemBase {
     differentialDrive.arcadeDrive(throttle, turnModifier);
   }
 
+  /**
+   * Executes curvatureDrive with closed loop control. Needs to be called periodically by the
+   * command to update the closed loop.
+   *
+   * <p>The closed loop works on the difference between the desired curvature and the measured
+   * curvature, using proportional gain only.
+   *
+   * @param throttle - [-1.0, 1.0]. Positive is forward
+   * @param curvature - [-1.0, 1.0]. Positive is turning right
+   */
   public void curvatureDrive(double throttle, double curvature) {
-    if (throttle != 0.0 && curvature == 0.0 && !gyroDisabled) { // driving straight and no turn
-      if (this.desiredAngle == Integer.MAX_VALUE) { // means robot just started driving straight
-        this.desiredAngle = gyroscope.getGyroAngle();
-      }
-      curvature = this.getAngularError(desiredAngle) * P_VALUE;
-      this.setLeftPower(throttle - curvature);
-      this.setRightPower(throttle + curvature);
-    } else { // when robot isn't driving straight
-      this.desiredAngle = Integer.MAX_VALUE; // if turn is greater than 0 or if robot is still
-      differentialDrive.curvatureDrive(
-          -throttle, curvature, (Math.abs(throttle) < QUICK_TURN_THROTTLE_DEADZONE));
+
+    // Condition for arcade drive behavior over curvature drive
+    boolean turnInPlace = (Math.abs(throttle) < QUICK_TURN_THROTTLE_DEADZONE);
+
+    // Calculate ideal left and right speeds based on curvature
+    WheelSpeeds desiredSpeeds =
+        DifferentialDrive.curvatureDriveIK(throttle, curvature, turnInPlace);
+
+    // Execute closed loop only on curvature and only if enabled
+    if (!turnInPlace && !gyroDisabled) {
+      // To execute closed loop and correct unwanted turning, we need to directly
+      // compare a desired quanity to the current quantity to get an error. The units
+      // on desired speeds are hard to relate to turning units directly, so we need a
+      // way to cancel them out. If we control the curvature rate instead (which is
+      // turn rate / linear rate), we can cancel out some of the units into
+      // degrees/meter, making comparison easier.
+
+      // Desired curvature rate (angular speed / linear speed)
+      double desiredTurnRate =
+          (180 / Math.PI)
+              * (desiredSpeeds.left - desiredSpeeds.right)
+              / (DriveConstants.kDriveTrackWidthMeters / 2);
+      double desiredSpeed = Math.abs(desiredSpeeds.left + desiredSpeeds.right) / 2.0;
+      // account for the possiblity of dividing by zero by setting miniumum "desired
+      // speed" value
+      double desiredCurvature =
+          desiredTurnRate / Math.max(desiredSpeed, QUICK_TURN_THROTTLE_DEADZONE);
+
+      // Measured curvature rate (angular speed / linear speed)
+      double measuredTurnRate = this.gyroscope.getRate();
+      double measuredSpeed =
+          Math.abs(this.leftGearbox.getEncoderRate() + this.rightGearbox.getEncoderRate()) / 2.0;
+      // account for the possiblity of dividing by zero. Anything less than 5cm/s or
+      // so is too noisy, set floor
+      double measuredCurvature = measuredTurnRate / Math.max(measuredSpeed, 0.05);
+
+      // Modify wheel speeds based on curvature error
+      double turnRateCorrection = (desiredCurvature - measuredCurvature) * kP_CURVATURE_DRIVE;
+      desiredSpeeds.left += turnRateCorrection;
+      desiredSpeeds.right -= turnRateCorrection;
     }
+
+    // send the modified wheel speeds to the motors.
+    differentialDrive.tankDrive(desiredSpeeds.left, desiredSpeeds.right, turnInPlace);
   }
 
   public double getAngularError(double desiredAngle) {
