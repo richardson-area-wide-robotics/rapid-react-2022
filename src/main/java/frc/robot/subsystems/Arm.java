@@ -9,8 +9,8 @@ import edu.wpi.first.wpilibj2.command.ProfiledPIDSubsystem;
 
 /** A robot arm subsystem that moves with a motion profile. */
 public class Arm extends ProfiledPIDSubsystem {
-  private final int LEFT_CAN_ID = 7;
-  private final int RIGHT_CAN_ID = 8;
+  private final int LEFT_CAN_ID = 20; // needs to be 7
+  private final int RIGHT_CAN_ID = 30; // needs to be 8
   private MotorType ARM_MOTOR_TYPE = MotorType.kBrushless;
   private final double K_ARM_SCORING_RADS = -1; // -1.257;
   private final double K_ARM_INTAKE_RADS = 1; // 1.257;

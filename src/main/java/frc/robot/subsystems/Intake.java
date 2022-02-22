@@ -8,9 +8,9 @@ public class Intake extends SubsystemBase {
 
   private CANSparkMax intakeMotor;
 
-  private final double REVERSE_SPEED = 0.5;
-  private final double FORWARD_SPEED = 0.1;
-  private final double RAMPRATE = 0.1;
+  private final double REVERSE_SPEED = -1;
+  private final double FORWARD_SPEED = 0.6;
+  private final double RAMPRATE = 0;
 
   public Intake(int intakeMotorCANID, Boolean invertIntakeMotor) {
     this.intakeMotor = new CANSparkMax(intakeMotorCANID, MotorType.kBrushless);
@@ -30,5 +30,6 @@ public class Intake extends SubsystemBase {
 
   public void outtake() {
     this.intakeMotor.set(REVERSE_SPEED);
+    
   }
 }

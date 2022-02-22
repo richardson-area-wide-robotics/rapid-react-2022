@@ -9,38 +9,40 @@ public class BangBangArm extends SubsystemBase {
   private CANSparkMax leftMotor;
   private CANSparkMax rightMotor;
 
-  private final float REVERSE_LIMIT = (float) -23.81;
+  private final float REVERSE_LIMIT = (float) -23.8;
   private final float FORWARD_LIMIT = 0;
   private final double REVERSE_SPEED = -0.50;
   private final double FORWARD_SPEED = 0.37;
   private final double RAMPRATE = 0.1;
-
+  private armPosition m_Position= armPosition.SCORING_ARM_POSITION;
   enum armPosition {
     INTAKE_ARM_POSITION,
     SCORING_ARM_POSITION
   }
 
-  public BangBangArm(
-      int rightMotorCANID, int leftMotorCANID, Boolean invertRightMotor, Boolean invertLeftMotor) {
+  public BangBangArm( int rightMotorCANID, int leftMotorCANID) {
     this.rightMotor = new CANSparkMax(rightMotorCANID, MotorType.kBrushless);
-    this.rightMotor.setInverted(invertRightMotor);
+    //this.rightMotor.setInverted(invertRightMotor);
     this.rightMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
     this.rightMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, FORWARD_LIMIT);
     this.rightMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
     this.rightMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, REVERSE_LIMIT);
     this.rightMotor.setOpenLoopRampRate(RAMPRATE);
+    this.rightMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
 
     this.leftMotor = new CANSparkMax(leftMotorCANID, MotorType.kBrushless);
-    this.leftMotor.setInverted(invertLeftMotor);
-    this.leftMotor.follow(this.rightMotor);
+    //this.leftMotor.setInverted(invertLeftMotor);
+    this.leftMotor.follow(this.rightMotor,true);
   }
 
   public void runToScore() {
     this.rightMotor.set(FORWARD_SPEED);
+    this.m_Position= armPosition.SCORING_ARM_POSITION;
   }
 
   public void runToIntake() {
     this.rightMotor.set(REVERSE_SPEED);
+    this.m_Position=  armPosition.INTAKE_ARM_POSITION;
   }
 
   public double getPosition() {
@@ -72,12 +74,11 @@ public class BangBangArm extends SubsystemBase {
   }
 
   public void toggleArmPosition() {
-    if (this.getSpeed() == FORWARD_SPEED) {
-      this.runToIntake();
-    } else // if its already in intake position go to score position. if its never been in a
-    // position also go to score position.
-    {
+    if (this.m_Position == armPosition.INTAKE_ARM_POSITION) {
       this.runToScore();
     }
+     else {
+      this.runToIntake();
+      }
   }
 }
