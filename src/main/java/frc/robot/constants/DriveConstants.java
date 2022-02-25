@@ -11,5 +11,5 @@ public class DriveConstants {
   public static final DifferentialDriveKinematics kDriveKinematics =
       new DifferentialDriveKinematics(kDriveTrackWidthMeters);
   public static final double kPDriveVel = 2.0903;
-  public static final double WHEEL_DIAMETER_METERS = 0.1524;
+  public static final double WHEEL_DIAMETER_METERS = 0.1016;
 }

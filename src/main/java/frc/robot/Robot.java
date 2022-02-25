@@ -6,8 +6,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -18,6 +16,9 @@ import frc.robot.commands.autonomousCommands.AutonPathCommand;
 import frc.robot.commands.autonomousCommands.TrajectoryTutCommandGroup;
 import frc.robot.operatorInputs.Controls;
 import frc.robot.operatorInputs.OperatorInputs;
+// import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.BangBangArm;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Gyroscope;
 
@@ -35,6 +36,9 @@ public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
   private Controls driverControls;
   private OperatorInputs operatorInputs;
+  // private Arm arm;
+  private BangBangArm bangArm;
+  private Intake intake;
 
   private AutonPathCommand rightSideIntake_intakeAndScore;
   private AutonPathCommand rightSideIntake_intakeSingleCargo;
@@ -65,7 +69,10 @@ public class Robot extends TimedRobot {
     this.driverControls = new Controls(new Joystick(JOYSTICK_PORT_DRIVER));
     this.gyro = new Gyroscope();
     this.drive = new Drive(gyro);
-    this.operatorInputs = new OperatorInputs(driverControls, drive);
+    // this.arm = new Arm();
+    this.intake = new Intake(9, false);
+    this.bangArm = new BangBangArm(8, 7);
+    this.operatorInputs = new OperatorInputs(driverControls, drive, bangArm, intake);
 
     this.rightSideIntake_intakeAndScore =
         new AutonPathCommand(drive, "rightSideIntake/rightSideIntake_intakeAndScore.wpilib.json");
@@ -86,19 +93,20 @@ public class Robot extends TimedRobot {
 
     this.rightSideScore =
         new SequentialCommandGroup(
+            // new InstantCommand(() -> this.intake.outtake(), intake),
             new InstantCommand(() -> this.rightSideScore_backupAndAlign.resetOdometryToPathStart()),
-            this.rightSideScore_backupAndAlign.getRamseteCommand(),
-            this.rightSideScore_intakeTwoCargo.getRamseteCommand(),
-            this.rightSideScore_scoreCargo.getRamseteCommand(),
-            this.rightSideScore_scoreFirstTaxi.getRamseteCommand());
+            this.rightSideScore_backupAndAlign.getRamseteCommand());
+    // this.rightSideScore_intakeTwoCargo.getRamseteCommand(),
+    // this.rightSideScore_scoreCargo.getRamseteCommand(),
+    // this.rightSideScore_scoreFirstTaxi.getRamseteCommand());
 
     this.rightSideIntake =
         new SequentialCommandGroup(
             new InstantCommand(
                 () -> this.rightSideIntake_intakeAndScore.resetOdometryToPathStart()),
-            this.rightSideIntake_intakeAndScore.getRamseteCommand(),
-            this.rightSideIntake_intakeSingleCargo.getRamseteCommand(),
-            this.rightSideIntake_intakeFirstTaxi.getRamseteCommand());
+            this.rightSideIntake_intakeAndScore.getRamseteCommand());
+    // this.rightSideIntake_intakeSingleCargo.getRamseteCommand(),
+    // this.rightSideIntake_intakeFirstTaxi.getRamseteCommand());
 
     this.autonomousChooser = new SendableChooser<>();
     this.autonomousChooser.setDefaultOption("Right Side Score", this.rightSideScore);
@@ -111,12 +119,12 @@ public class Robot extends TimedRobot {
   private void updateSmartDashboardValues() {
     SmartDashboard.putNumber("right encoder value", this.drive.getRightEncoderDistance());
     SmartDashboard.putNumber("left encoder value", this.drive.getLeftEncoderDistance());
-    SmartDashboard.putNumber("gyro angle value", this.gyro.getGyroAngle());
+    SmartDashboard.putNumber("Arm Position", this.bangArm.getPosition());
 
-    Shuffleboard.getTab("Drive")
-        .add("gyro angle value", this.gyro.getGyroAngle())
-        .withWidget(BuiltInWidgets.kGyro)
-        .getEntry();
+    // Shuffleboard.getTab("Drive")
+    //     .add("gyro angle value", this.gyro.getGyroAngle())
+    //     .withWidget(BuiltInWidgets.kGyro)
+    //     .getEntry();
   }
 
   /**
@@ -161,6 +169,9 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
+    if (bangArm.atReverseLimit() == true) {
+      intake.gather();
+    }
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
