@@ -15,6 +15,8 @@ public class Drive extends SubsystemBase {
 
   private Gearbox leftGearbox;
   private Gearbox rightGearbox;
+  private Encoder leftEncoder;
+  private Encoder rightEncoder;
   private Gyroscope gyroscope;
   private DifferentialDrive differentialDrive;
   private DifferentialDriveOdometry differentialDriveOdometry;
@@ -41,20 +43,27 @@ public class Drive extends SubsystemBase {
   public Drive(Gyroscope gyroscope) {
     this.leftGearbox =
         new Gearbox(
-            new Encoder(7, 8),
             new CANSparkMax(LEFT_BACK_CAN_ID, DRIVE_MOTOR_TYPE),
             new CANSparkMax(LEFT_FRONT_CAN_ID, DRIVE_MOTOR_TYPE),
             new CANSparkMax(LEFT_MIDDLE_CAN_ID, DRIVE_MOTOR_TYPE));
 
     this.rightGearbox =
         new Gearbox(
-            new Encoder(2, 3),
             new CANSparkMax(RIGHT_BACK_CAN_ID, DRIVE_MOTOR_TYPE),
             new CANSparkMax(RIGHT_FRONT_CAN_ID, DRIVE_MOTOR_TYPE),
             new CANSparkMax(RIGHT_MIDDLE_CAN_ID, DRIVE_MOTOR_TYPE));
 
     this.leftGearbox.setRampRate(RAMP_RATE);
     this.rightGearbox.setRampRate(RAMP_RATE);
+
+    this.leftEncoder = new Encoder(7, 8);
+    this.rightEncoder = new Encoder(2, 3);
+
+    // TODO: these values are for a specific robot and specefic encoder
+    // that may not be the same for all robots. Change them to reference
+    // a value in Constants.java - Egan
+    this.leftEncoder.setDistancePerPulse((0.1524 * Math.PI) / 2048.0);
+    this.rightEncoder.setDistancePerPulse((0.1524 * Math.PI) / 2048.0);
 
     this.differentialDrive =
         new DifferentialDrive(
@@ -67,14 +76,16 @@ public class Drive extends SubsystemBase {
     this.differentialDriveOdometry = new DifferentialDriveOdometry(this.gyroscope.getRotation2d());
 
     this.rightGearbox.setInverted(true);
+    this.rightEncoder.setReverseDirection(true);
+    this.leftEncoder.setReverseDirection(true);
   }
 
   @Override
   public void periodic() {
     this.differentialDriveOdometry.update(
         this.gyroscope.getRotation2d(),
-        this.leftGearbox.getEncoderDistance(),
-        this.rightGearbox.getEncoderDistance());
+        this.leftEncoder.getDistance(),
+        this.rightEncoder.getDistance());
   }
 
   /** Returns the currently-estimated pose of the robot. */
@@ -84,24 +95,24 @@ public class Drive extends SubsystemBase {
 
   /** Resets the drive encoders to currently read a position of 0. */
   public void resetEncoders() {
-    this.leftGearbox.resetEncoder();
-    this.rightGearbox.resetEncoder();
+    this.leftEncoder.reset();
+    this.rightEncoder.reset();
   }
 
   public double getLeftEncoderDistance() {
-    return this.leftGearbox.getEncoderDistance();
+    return this.leftEncoder.getDistance();
   }
 
   public double getRightEncoderDistance() {
-    return this.rightGearbox.getEncoderDistance();
+    return this.rightEncoder.getDistance();
   }
 
-  public double getLeftEncodeRate() {
-    return this.leftGearbox.getEncoderRate();
+  public double getLeftEncoderRate() {
+    return this.leftEncoder.getRate();
   }
 
-  public double getRightEncodeRate() {
-    return this.rightGearbox.getEncoderRate();
+  public double getRightEncoderRate() {
+    return this.rightEncoder.getRate();
   }
 
   /**
@@ -110,8 +121,7 @@ public class Drive extends SubsystemBase {
    * @return The current wheel speeds, in meters per second
    */
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-    return new DifferentialDriveWheelSpeeds(
-        this.leftGearbox.getEncoderRate(), this.rightGearbox.getEncoderRate());
+    return new DifferentialDriveWheelSpeeds(getLeftEncoderRate(), getRightEncoderDistance());
   }
 
   /**
@@ -142,7 +152,7 @@ public class Drive extends SubsystemBase {
    * @return the average of the two encoder readings
    */
   public double getAverageEncoderDistance() {
-    return ((this.leftGearbox.getEncoderDistance() + this.rightGearbox.getEncoderDistance()) / 2.0);
+    return ((getLeftEncoderDistance() + getRightEncoderDistance()) / 2.0);
   }
 
   /**
@@ -238,7 +248,7 @@ public class Drive extends SubsystemBase {
   }
 
   public double straightTurnPower(double pValue) {
-    double error = leftGearbox.getEncoderDistance() - rightGearbox.getEncoderDistance();
+    double error = getLeftEncoderDistance() - getRightEncoderDistance();
     double turnPower = error * pValue;
     return turnPower;
   }
