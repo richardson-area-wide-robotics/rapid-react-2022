@@ -76,6 +76,7 @@ public class Drive extends SubsystemBase {
 
     this.rightGearbox.setInverted(true);
     this.rightEncoder.setReverseDirection(true);
+    this.leftEncoder.setReverseDirection(true);
   }
 
   @Override

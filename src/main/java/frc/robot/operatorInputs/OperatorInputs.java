@@ -22,22 +22,13 @@ public class OperatorInputs {
             },
             drive));
 
-    //  driverControls
-    //      .getJoystickYButton()
-    //      .whenPressed(new InstantCommand(() -> arm.toggleArmPosition(), arm));
-
     driverControls
         .getJoystickXButton()
         .whenPressed(new InstantCommand(() -> bangArm.toggleArmPosition(), bangArm));
-        if (bangArm.atReverseLimit()){
-          intake.gather();
-        }
 
-    driverControls.getJoystickBButton().whenActive(new InstantCommand(() -> intake.gather(), intake));
-    driverControls.getJoystickAButton().whenActive(new InstantCommand(() -> intake.outtake(), intake));
-    //driverControls.getJoystickYButton().whenPressed(new InstantCommand(() -> intake.idle(), intake));
-    if (driverControls.getJoystickAButton().get() == false){
-      intake.idle();
-    }
+    driverControls.getJoystickBButton().whenPressed(new InstantCommand(() -> intake.gather(), intake));
+    driverControls.getJoystickBButton().whenReleased(new InstantCommand(() -> intake.idle(), intake));
+    driverControls.getJoystickAButton().whenPressed(new InstantCommand(() -> intake.outtake(), intake));
+    driverControls.getJoystickAButton().whenReleased(new InstantCommand(() -> intake.idle(), intake));
   }
 }

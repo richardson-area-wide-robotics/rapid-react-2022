@@ -93,19 +93,20 @@ public class Robot extends TimedRobot {
 
     this.rightSideScore =
         new SequentialCommandGroup(
+            //new InstantCommand(() -> this.intake.outtake(), intake),
             new InstantCommand(() -> this.rightSideScore_backupAndAlign.resetOdometryToPathStart()),
-            this.rightSideScore_backupAndAlign.getRamseteCommand(),
-            this.rightSideScore_intakeTwoCargo.getRamseteCommand(),
-            this.rightSideScore_scoreCargo.getRamseteCommand(),
-            this.rightSideScore_scoreFirstTaxi.getRamseteCommand());
+            this.rightSideScore_backupAndAlign.getRamseteCommand());
+            //this.rightSideScore_intakeTwoCargo.getRamseteCommand(),
+            //this.rightSideScore_scoreCargo.getRamseteCommand(),
+            //this.rightSideScore_scoreFirstTaxi.getRamseteCommand());
 
     this.rightSideIntake =
         new SequentialCommandGroup(
             new InstantCommand(
                 () -> this.rightSideIntake_intakeAndScore.resetOdometryToPathStart()),
-            this.rightSideIntake_intakeAndScore.getRamseteCommand(),
-            this.rightSideIntake_intakeSingleCargo.getRamseteCommand(),
-            this.rightSideIntake_intakeFirstTaxi.getRamseteCommand());
+            this.rightSideIntake_intakeAndScore.getRamseteCommand());
+            //this.rightSideIntake_intakeSingleCargo.getRamseteCommand(),
+            //this.rightSideIntake_intakeFirstTaxi.getRamseteCommand());
 
     this.autonomousChooser = new SendableChooser<>();
     this.autonomousChooser.setDefaultOption("Right Side Score", this.rightSideScore);
@@ -118,6 +119,7 @@ public class Robot extends TimedRobot {
   private void updateSmartDashboardValues() {
     SmartDashboard.putNumber("right encoder value", this.drive.getRightEncoderDistance());
     SmartDashboard.putNumber("left encoder value", this.drive.getLeftEncoderDistance());
+    SmartDashboard.putNumber("Arm Position", this.bangArm.getPosition());
 
     // Shuffleboard.getTab("Drive")
     //     .add("gyro angle value", this.gyro.getGyroAngle())
@@ -167,6 +169,9 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
+    if (bangArm.atReverseLimit() == true){
+      intake.gather();
+    }
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
