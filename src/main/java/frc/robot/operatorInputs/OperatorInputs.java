@@ -26,9 +26,17 @@ public class OperatorInputs {
         .getJoystickXButton()
         .whenPressed(new InstantCommand(() -> bangArm.toggleArmPosition(), bangArm));
 
-    driverControls.getJoystickBButton().whenPressed(new InstantCommand(() -> intake.gather(), intake));
-    driverControls.getJoystickBButton().whenReleased(new InstantCommand(() -> intake.idle(), intake));
-    driverControls.getJoystickAButton().whenPressed(new InstantCommand(() -> intake.outtake(), intake));
-    driverControls.getJoystickAButton().whenReleased(new InstantCommand(() -> intake.idle(), intake));
+    driverControls
+        .getJoystickBButton()
+        .whenPressed(new InstantCommand(() -> intake.gather(), intake));
+    driverControls
+        .getJoystickBButton()
+        .whenReleased(new InstantCommand(() -> intake.idle(), intake));
+    driverControls
+        .getJoystickAButton()
+        .whenPressed(new InstantCommand(() -> intake.outtake(), intake));
+    driverControls
+        .getJoystickAButton()
+        .whenReleased(new InstantCommand(() -> intake.idle(), intake));
   }
 }

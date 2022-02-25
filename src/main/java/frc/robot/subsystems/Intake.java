@@ -30,6 +30,5 @@ public class Intake extends SubsystemBase {
 
   public void outtake() {
     this.intakeMotor.set(REVERSE_SPEED);
-    
   }
 }
