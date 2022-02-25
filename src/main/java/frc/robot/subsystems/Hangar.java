@@ -4,6 +4,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxPIDController;
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -21,13 +22,15 @@ public class Hangar extends SubsystemBase {
   private final float SOFTLIMIT_REVERSE = 0;
   private final float SOFTLIMIT_FORWARD = 20; // Max height of the elevator
   public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
+  public Compressor compressor;
 
   public Hangar(
       int elevatorMotor_canID,
+      int pneumaticsModule_CanID,
       int midSolenoidChannel_forward,
       int midSolenoidChannel_reverse,
-      int flappyArmsSolenoidChannel_forward,
-      int flappyArmsSolenoidChannel_reverse) {
+      int flippyArmsSolenoidChannel_forward,
+      int flippyArmsSolenoidChannel_reverse) {
     elevatorMotor = new CANSparkMax(elevatorMotor_canID, MotorType.kBrushless);
     elevatorMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
     elevatorMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, SOFTLIMIT_REVERSE);
@@ -39,12 +42,18 @@ public class Hangar extends SubsystemBase {
     flippyArms =
         new DoubleSolenoid(
             PneumaticsModuleType.REVPH,
-            flappyArmsSolenoidChannel_forward,
-            flappyArmsSolenoidChannel_reverse);
+            flippyArmsSolenoidChannel_forward,
+            flippyArmsSolenoidChannel_reverse);
     this.flippyArms.set(DoubleSolenoid.Value.kOff);
+    compressor = new Compressor(pneumaticsModule_CanID, PneumaticsModuleType.REVPH);
+    compressor.enableDigital();
   }
 
   /** */
+  public void enableCompressor() {
+    compressor.enableDigital();
+  }
+
   public double getPosition() {
     return this.elevatorMotor.getEncoder().getPosition();
   }
@@ -75,6 +84,10 @@ public class Hangar extends SubsystemBase {
 
   public void releaseFlippyHooks() {
     this.flippyArms.set(DoubleSolenoid.Value.kForward);
+  }
+
+  public boolean isAtZero() {
+    return this.elevatorMotor.getEncoder().getPosition() <= DEADBAND;
   }
 
   public boolean isAtMidHeight() {
