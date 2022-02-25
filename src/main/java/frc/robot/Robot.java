@@ -18,6 +18,7 @@ import frc.robot.operatorInputs.Controls;
 import frc.robot.operatorInputs.OperatorInputs;
 // import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.BangBangArm;
+import frc.robot.subsystems.Hangar;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Gyroscope;
@@ -39,7 +40,7 @@ public class Robot extends TimedRobot {
   // private Arm arm;
   private BangBangArm bangArm;
   private Intake intake;
-
+  private Hangar hangar;
   private AutonPathCommand rightSideIntake_intakeAndScore;
   private AutonPathCommand rightSideIntake_intakeSingleCargo;
   private AutonPathCommand rightSideIntake_intakeFirstTaxi;
@@ -72,7 +73,8 @@ public class Robot extends TimedRobot {
     // this.arm = new Arm();
     this.intake = new Intake(9, false);
     this.bangArm = new BangBangArm(8, 7);
-    this.operatorInputs = new OperatorInputs(driverControls, drive, bangArm, intake);
+    this.hangar = new Hangar(10, 1, 1, 2, 3, 4);
+    this.operatorInputs = new OperatorInputs(driverControls, drive, bangArm, intake, hangar);
 
     this.rightSideIntake_intakeAndScore =
         new AutonPathCommand(drive, "rightSideIntake/rightSideIntake_intakeAndScore.wpilib.json");
@@ -154,6 +156,7 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    hangar.enableCompressor();
     this.autonomousChooser.getSelected().schedule();
   }
 
@@ -169,6 +172,7 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
+    hangar.enableCompressor();
     if (bangArm.atReverseLimit() == true) {
       intake.gather();
     }
