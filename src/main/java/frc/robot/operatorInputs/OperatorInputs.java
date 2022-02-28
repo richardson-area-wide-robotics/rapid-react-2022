@@ -12,7 +12,12 @@ public class OperatorInputs {
   private final double JOYSTICK_DEADZONE = 0.1;
 
   public OperatorInputs(
-      Controls driverControls, Drive drive, BangBangArm bangArm, Intake intake, Hangar hangar) {
+      Controls driverControls,
+      Controls operatorControls,
+      Drive drive,
+      BangBangArm bangArm,
+      Intake intake,
+      Hangar hangar) {
 
     // Driver commands
     drive.setDefaultCommand(
@@ -20,43 +25,44 @@ public class OperatorInputs {
             () -> {
               // Invert getLeftY because the axis has 1 as down and -1 as up, while we want up = 1 =
               // forward.
-              drive.curvatureDrive(
-                  -driverControls.getLeftY(JOYSTICK_DEADZONE),
-                  driverControls.getRightX(JOYSTICK_DEADZONE));
+              double throttle = -driverControls.getLeftY(JOYSTICK_DEADZONE);
+              double turn = driverControls.getRightX(JOYSTICK_DEADZONE);
+              turn *= Math.abs(turn);
+              drive.curvatureDrive(throttle, turn);
             },
             drive));
 
-    driverControls
+    operatorControls
         .getJoystickXButton()
         .whenPressed(new InstantCommand(() -> bangArm.toggleArmPosition(), bangArm));
 
-    driverControls
-        .getJoystickBButton()
+    operatorControls
+        .getLeftJoystickBumper()
         .whenPressed(new InstantCommand(() -> intake.gather(), intake));
-    driverControls
-        .getJoystickBButton()
+    operatorControls
+        .getLeftJoystickBumper()
         .whenReleased(new InstantCommand(() -> intake.idle(), intake));
-    driverControls
-        .getJoystickAButton()
+    operatorControls
+        .getRightJoystickBumper()
         .whenPressed(new InstantCommand(() -> intake.outtake(), intake));
-    driverControls
-        .getJoystickAButton()
+    operatorControls
+        .getRightJoystickBumper()
         .whenReleased(new InstantCommand(() -> intake.idle(), intake));
 
     if (hangar.isAtZero()) {
-      driverControls
+      operatorControls
           .getJoystickYButton()
           .whenPressed(new InstantCommand(() -> hangar.runToMidHeight(), hangar))
           .whenPressed(new InstantCommand(() -> hangar.engageMidHooks(), hangar));
     } else if (hangar.isAtMidHeight()) {
-      driverControls
+      operatorControls
           .getJoystickYButton()
           .whenPressed(new InstantCommand(() -> hangar.runToReleaseHeight(), hangar));
     } else if (hangar.isAtReleaseHeight()) {
-      driverControls
+      operatorControls
           .getJoystickYButton()
           .whenPressed(new InstantCommand(() -> hangar.releaseFlippyHooks(), hangar));
-      driverControls
+      operatorControls
           .getJoystickYButton()
           .whenPressed(new InstantCommand(() -> hangar.releaseMidHooks(), hangar));
     }
