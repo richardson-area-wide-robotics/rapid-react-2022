@@ -15,13 +15,19 @@ public class Hangar extends SubsystemBase {
   private SparkMaxPIDController elevatorPIDController;
   private DoubleSolenoid midPneumatics;
   private DoubleSolenoid flippyArms;
-  private final double MIDHEIGHT = 0; // where scoring at the mid height would be
-  private final double FLIPPYHEIGHT = 0; // where we need to be to score the flippy hooks
-  private final double RELEASEHEIGHT = 0; // where we need to be to score the release hooks
+  private final double MIDHEIGHT = 84.27; // where scoring at the mid height would be
+  private final double FLIPPYHEIGHT = 3.01; // where we need to be to score the flippy hooks
+  private final double RELEASEHEIGHT = 1.98; // where we need to be to score the release hooks
   private final double DEADBAND = 0.5; // the amount of play allow in our PID controller
   private final float SOFTLIMIT_REVERSE = 0;
-  private final float SOFTLIMIT_FORWARD = 20; // Max height of the elevator
-  public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
+  private final float SOFTLIMIT_FORWARD = 90; // Max height of the elevator
+  public double kP = 0.1;
+  public double kI = 0.0004;
+  public double kD = 1;
+  public double kIz = 0;
+  public double kFF = 0;
+  public double kMaxOutput = 1;
+  public double kMinOutput = -1;
   public Compressor compressor;
 
   public Hangar(
@@ -36,6 +42,12 @@ public class Hangar extends SubsystemBase {
     elevatorMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, SOFTLIMIT_REVERSE);
     elevatorMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, SOFTLIMIT_FORWARD);
     elevatorPIDController = elevatorMotor.getPIDController();
+    elevatorPIDController.setP(kP);
+    elevatorPIDController.setI(kI);
+    elevatorPIDController.setD(kD);
+    elevatorPIDController.setIZone(kIz);
+    elevatorPIDController.setFF(kFF);
+    elevatorPIDController.setOutputRange(kMinOutput, kMaxOutput);
     midPneumatics =
         new DoubleSolenoid(
             PneumaticsModuleType.REVPH, midSolenoidChannel_forward, midSolenoidChannel_reverse);
@@ -46,12 +58,12 @@ public class Hangar extends SubsystemBase {
             flippyArmsSolenoidChannel_reverse);
     this.flippyArms.set(DoubleSolenoid.Value.kOff);
     compressor = new Compressor(pneumaticsModule_CanID, PneumaticsModuleType.REVPH);
-    compressor.enableDigital();
+    compressor.enableAnalog(110, 120);
   }
 
   /** */
   public void enableCompressor() {
-    compressor.enableDigital();
+    compressor.enableAnalog(110, 120);
   }
 
   public double getPosition() {

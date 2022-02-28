@@ -9,8 +9,8 @@ public class BangBangArm extends SubsystemBase {
   private CANSparkMax leftMotor;
   private CANSparkMax rightMotor;
 
-  private final float REVERSE_LIMIT = (float) -23.8;
-  private final float FORWARD_LIMIT = 0;
+  private final float REVERSE_LIMIT = (float) -26.5;
+  private final float FORWARD_LIMIT = (float) 0;
   private final double REVERSE_SPEED = -0.50;
   private final double FORWARD_SPEED = 0.37;
   private final double RAMPRATE = 0.1;
