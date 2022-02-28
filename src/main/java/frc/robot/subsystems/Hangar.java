@@ -66,6 +66,10 @@ public class Hangar extends SubsystemBase {
     compressor.enableAnalog(110, 120);
   }
 
+  public double getAnalogVoltage() {
+    return compressor.getAnalogVoltage();
+  }
+
   public double getPosition() {
     return this.elevatorMotor.getEncoder().getPosition();
   }

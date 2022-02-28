@@ -6,6 +6,9 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -13,15 +16,14 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.autonomousCommands.AutonPathCommand;
-import frc.robot.commands.autonomousCommands.TrajectoryTutCommandGroup;
 import frc.robot.operatorInputs.Controls;
 import frc.robot.operatorInputs.OperatorInputs;
-// import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.BangBangArm;
 import frc.robot.subsystems.Hangar;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Gyroscope;
+import java.util.Map;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -31,7 +33,6 @@ import frc.robot.subsystems.drive.Gyroscope;
  */
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
-  private TrajectoryTutCommandGroup trajectoryTutCommand;
   private Drive drive;
   private Gyroscope gyro;
   private RobotContainer m_robotContainer;
@@ -85,9 +86,10 @@ public class Robot extends TimedRobot {
     this.intake = new Intake(9, false);
     this.bangArm = new BangBangArm(8, 7);
     this.hangar = new Hangar(10, 1, 0, 1, 2, 3);
+    new InstantCommand(() -> this.hangar.enableCompressor());
     this.operatorInputs =
         new OperatorInputs(driverControls, operatorControls, drive, bangArm, intake, hangar);
-    this.hangar.enableCompressor();
+    // this.hangar.enableCompressor();
     this.rightSideIntake_intake =
         new AutonPathCommand(drive, "rightSideIntake/rightSideIntake_intake.wpilib.json");
     this.rightSideIntake_score =
@@ -160,6 +162,30 @@ public class Robot extends TimedRobot {
     this.autonomousChooser.addOption("Right Side Intake", this.rightSideIntake);
     this.autonomousChooser.addOption("Left Side Auton", this.leftSide);
 
+    InstantCommand armUpCommand = new InstantCommand(() -> this.bangArm.runToScore());
+    InstantCommand armDownCommand = new InstantCommand(() -> this.bangArm.runToIntake());
+    InstantCommand commandIntake = new InstantCommand(() -> this.bangArm.runToIntake());
+    InstantCommand commandOutake = new InstantCommand(() -> this.bangArm.runToIntake());
+
+    Shuffleboard.getTab("Operator Controls")
+        .getLayout("Arm", BuiltInLayouts.kList)
+        .withSize(2, 2)
+        .withProperties(Map.of("Label position", "HIDDEN"))
+        .add(armUpCommand);
+    //Shuffleboard.getTab("Operator Controls")
+        //.getLayout("Arm")
+        //.add(armDownCommand);
+   /* Shuffleboard.getTab("Operator Controls")
+        .getLayout("Intake", BuiltInLayouts.kList)
+        .add(commandIntake);
+    Shuffleboard.getTab("OperatorControls")
+        .getLayout("Intake")
+        .add(commandOutake);
+    Shuffleboard.getTab("Constants")
+        .add("gyro angle value", this.gyro.getGyroAngle())
+        .withWidget(BuiltInWidgets.kGyro)
+         .getEntry();#*/
+
     // Put the chooser on the dashboard
     SmartDashboard.putData(this.autonomousChooser);
   }
@@ -168,11 +194,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("right encoder value", this.drive.getRightEncoderDistance());
     SmartDashboard.putNumber("left encoder value", this.drive.getLeftEncoderDistance());
     SmartDashboard.putNumber("Arm Position", this.bangArm.getPosition());
-
-    // Shuffleboard.getTab("Drive")
-    //     .add("gyro angle value", this.gyro.getGyroAngle())
-    //     .withWidget(BuiltInWidgets.kGyro)
-    //     .getEntry();
+    SmartDashboard.putNumber("Analog Value", this.hangar.getAnalogVoltage());
   }
 
   /**
@@ -202,7 +224,8 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    hangar.enableCompressor();
+    new InstantCommand(() -> this.hangar.enableCompressor());
+    // hangar.enableCompressor();
     this.autonomousChooser.getSelected().schedule();
   }
 
@@ -218,7 +241,8 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    hangar.enableCompressor();
+    // hangar.enableCompressor();
+    new InstantCommand(() -> this.hangar.enableCompressor());
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
