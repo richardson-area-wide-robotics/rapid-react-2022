@@ -15,9 +15,9 @@ public class Hangar extends SubsystemBase {
   private SparkMaxPIDController elevatorPIDController;
   private DoubleSolenoid midPneumatics;
   private DoubleSolenoid flippyArms;
-  private final double MIDHEIGHT = 84.27; // where scoring at the mid height would be
+  private final double MIDHEIGHT = 85.27; // where scoring at the mid height would be
   private final double FLIPPYHEIGHT = 3.01; // where we need to be to score the flippy hooks
-  private final double RELEASEHEIGHT = 1.98; // where we need to be to score the release hooks
+  private final double RELEASEHEIGHT = 1.25; // where we need to be to score the release hooks
   private final double DEADBAND = 0.5; // the amount of play allow in our PID controller
   private final float SOFTLIMIT_REVERSE = 0;
   private final float SOFTLIMIT_FORWARD = 90; // Max height of the elevator
@@ -70,6 +70,14 @@ public class Hangar extends SubsystemBase {
     return compressor.getAnalogVoltage();
   }
 
+  public double getPressure() {
+    return compressor.getPressure();
+  }
+
+  public double getAnalogPressure() {
+    return (250.0*(getAnalogVoltage()/5.0))-25.0;
+  }
+
   public double getPosition() {
     return this.elevatorMotor.getEncoder().getPosition();
   }
@@ -90,6 +98,8 @@ public class Hangar extends SubsystemBase {
     this.setPosition(RELEASEHEIGHT);
   }
 
+  public void runToZeroPosition(){}
+
   public void engageMidHooks() {
     this.midPneumatics.set(DoubleSolenoid.Value.kForward);
   }
@@ -107,7 +117,7 @@ public class Hangar extends SubsystemBase {
   }
 
   public boolean isAtMidHeight() {
-    return Math.abs(this.getPosition() - MIDHEIGHT) < DEADBAND;
+    return Math.abs(this.getPosition() - MIDHEIGHT) < 5;
   }
 
   public boolean isAtReleaseHeight() {

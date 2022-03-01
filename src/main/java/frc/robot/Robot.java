@@ -195,6 +195,9 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("left encoder value", this.drive.getLeftEncoderDistance());
     SmartDashboard.putNumber("Arm Position", this.bangArm.getPosition());
     SmartDashboard.putNumber("Analog Value", this.hangar.getAnalogVoltage());
+    SmartDashboard.putNumber("Pressure of Anolog", this.hangar.getPressure());
+    SmartDashboard.putNumber("gyro angle", this.gyro.getGyroAngle());
+    SmartDashboard.putNumber("gyro rate", this.gyro.getRate());
   }
 
   /**

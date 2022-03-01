@@ -41,20 +41,25 @@ public class OperatorInputs {
         .whenPressed(new InstantCommand(() -> intake.gather(), intake));
     operatorControls
         .getLeftJoystickBumper()
-        .whenReleased(new InstantCommand(() -> intake.idle(), intake));
+.whenReleased(new InstantCommand(() -> intake.idle(), intake));
     operatorControls
         .getRightJoystickBumper()
         .whenPressed(new InstantCommand(() -> intake.outtake(), intake));
     operatorControls
         .getRightJoystickBumper()
         .whenReleased(new InstantCommand(() -> intake.idle(), intake));
+      operatorControls.getJoystickBButton().whenPressed(new InstantCommand(() -> hangar.runToReleaseHeight(), hangar));
+      operatorControls.getJoystickAButton().whenPressed(new InstantCommand(() -> hangar.releaseFlippyHooks(), hangar));
+     driverControls
+      .getJoystickBButton()
+      .whenPressed(new InstantCommand(() -> hangar.engageMidHooks(), hangar));
 
     if (hangar.isAtZero()) {
       operatorControls
           .getJoystickYButton()
           .whenPressed(new InstantCommand(() -> hangar.runToMidHeight(), hangar))
-          .whenPressed(new InstantCommand(() -> hangar.engageMidHooks(), hangar));
-    } else if (hangar.isAtMidHeight()) {
+          .whenPressed(new InstantCommand(() -> hangar.releaseMidHooks(), hangar));
+    } /*else if (hangar.isAtMidHeight()) {
       operatorControls
           .getJoystickYButton()
           .whenPressed(new InstantCommand(() -> hangar.runToReleaseHeight(), hangar));
@@ -64,8 +69,8 @@ public class OperatorInputs {
           .whenPressed(new InstantCommand(() -> hangar.releaseFlippyHooks(), hangar));
       operatorControls
           .getJoystickYButton()
-          .whenPressed(new InstantCommand(() -> hangar.releaseMidHooks(), hangar));
-    }
+          .whenPressed(new InstantCommand(() -> hangar.engageMidHooks(), hangar));
+    }*/
   }
 
   // hanger controlls

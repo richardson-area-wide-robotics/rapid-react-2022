@@ -76,7 +76,7 @@ public class Drive extends SubsystemBase {
     this.differentialDriveOdometry = new DifferentialDriveOdometry(this.gyroscope.getRotation2d());
 
     this.rightGearbox.setInverted(true);
-    this.rightEncoder.setReverseDirection(true);
+    this.rightEncoder.setReverseDirection(false);
     this.leftEncoder.setReverseDirection(true);
   }
 
