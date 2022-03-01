@@ -7,7 +7,6 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -172,10 +171,10 @@ public class Robot extends TimedRobot {
         .withSize(2, 2)
         .withProperties(Map.of("Label position", "HIDDEN"))
         .add(armUpCommand);
-    //Shuffleboard.getTab("Operator Controls")
-        //.getLayout("Arm")
-        //.add(armDownCommand);
-   /* Shuffleboard.getTab("Operator Controls")
+    // Shuffleboard.getTab("Operator Controls")
+    // .getLayout("Arm")
+    // .add(armDownCommand);
+    /* Shuffleboard.getTab("Operator Controls")
         .getLayout("Intake", BuiltInLayouts.kList)
         .add(commandIntake);
     Shuffleboard.getTab("OperatorControls")

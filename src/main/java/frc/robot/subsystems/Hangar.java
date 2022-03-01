@@ -75,7 +75,7 @@ public class Hangar extends SubsystemBase {
   }
 
   public double getAnalogPressure() {
-    return (250.0*(getAnalogVoltage()/5.0))-25.0;
+    return (250.0 * (getAnalogVoltage() / 5.0)) - 25.0;
   }
 
   public double getPosition() {
@@ -98,7 +98,7 @@ public class Hangar extends SubsystemBase {
     this.setPosition(RELEASEHEIGHT);
   }
 
-  public void runToZeroPosition(){}
+  public void runToZeroPosition() {}
 
   public void engageMidHooks() {
     this.midPneumatics.set(DoubleSolenoid.Value.kForward);
