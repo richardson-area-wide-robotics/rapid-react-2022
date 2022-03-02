@@ -2,10 +2,10 @@ package frc.robot.operatorInputs;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import frc.robot.subsystems.BangBangArm;
-import frc.robot.subsystems.Hangar;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.arm.BangBangArm;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.hangar.Hangar;
 
 public class OperatorInputs {
 
@@ -48,7 +48,7 @@ public class OperatorInputs {
     operatorControls
         .getRightJoystickBumper()
         .whenReleased(new InstantCommand(() -> intake.idle(), intake));
-    operatorControls
+    /*operatorControls
         .getJoystickBButton()
         .whenPressed(new InstantCommand(() -> hangar.runToReleaseHeight(), hangar));
     operatorControls
@@ -56,7 +56,7 @@ public class OperatorInputs {
         .whenPressed(new InstantCommand(() -> hangar.releaseFlippyHooks(), hangar));
     driverControls
         .getJoystickBButton()
-        .whenPressed(new InstantCommand(() -> hangar.engageMidHooks(), hangar));
+        .whenPressed(new InstantCommand(() -> hangar.engageMidHooks(), hangar));*/
 
     if (hangar.isAtZero()) {
       operatorControls

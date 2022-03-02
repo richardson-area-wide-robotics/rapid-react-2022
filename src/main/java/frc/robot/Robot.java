@@ -17,11 +17,14 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.autonomousCommands.AutonPathCommand;
 import frc.robot.operatorInputs.Controls;
 import frc.robot.operatorInputs.OperatorInputs;
-import frc.robot.subsystems.BangBangArm;
-import frc.robot.subsystems.Hangar;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.arm.BangBangArm;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Gyroscope;
+import frc.robot.subsystems.hangar.Hangar;
+import frc.robot.subsystems.lights.Lights;
+import frc.robot.subsystems.lights.LightsController;
+import frc.robot.subsystems.sensors.TOFSensor;
 import java.util.Map;
 
 /**
@@ -42,6 +45,9 @@ public class Robot extends TimedRobot {
   private BangBangArm bangArm;
   private Intake intake;
   private Hangar hangar;
+  private Lights lights;
+  private TOFSensor tofSensor;
+  private LightsController lightsController;
   private AutonPathCommand rightSideIntake_intake;
   private AutonPathCommand rightSideIntake_intakeSingleCargo;
   private AutonPathCommand rightSideIntake_intakeFirstTaxi;
@@ -85,6 +91,9 @@ public class Robot extends TimedRobot {
     this.intake = new Intake(9, false);
     this.bangArm = new BangBangArm(8, 7);
     this.hangar = new Hangar(10, 1, 0, 1, 2, 3);
+    this.lights = new Lights(9, 60, 50);
+    this.lightsController = new LightsController(this.lights, this.tofSensor);
+    this.tofSensor = new TOFSensor(1);
     new InstantCommand(() -> this.hangar.enableCompressor());
     this.operatorInputs =
         new OperatorInputs(driverControls, operatorControls, drive, bangArm, intake, hangar);
@@ -197,6 +206,12 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Pressure of Anolog", this.hangar.getPressure());
     SmartDashboard.putNumber("gyro angle", this.gyro.getGyroAngle());
     SmartDashboard.putNumber("gyro rate", this.gyro.getRate());
+    SmartDashboard.putData(
+        "Mid Elevator Raise", new InstantCommand(() -> hangar.runToReleaseHeight(), hangar));
+    SmartDashboard.putData(
+        "Realese High Climb Hook", new InstantCommand(() -> hangar.releaseFlippyHooks(), hangar));
+    SmartDashboard.putData(
+        "Realse Mid Climber attachment", new InstantCommand(() -> hangar.engageMidHooks(), hangar));
   }
 
   /**
