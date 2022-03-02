@@ -76,7 +76,7 @@ public class Drive extends SubsystemBase {
     this.differentialDriveOdometry = new DifferentialDriveOdometry(this.gyroscope.getRotation2d());
 
     this.rightGearbox.setInverted(true);
-    this.rightEncoder.setReverseDirection(true);
+    this.rightEncoder.setReverseDirection(false);
     this.leftEncoder.setReverseDirection(true);
   }
 
@@ -218,7 +218,7 @@ public class Drive extends SubsystemBase {
       // Measured curvature rate (angular speed / linear speed)
       double measuredTurnRate = this.gyroscope.getRate();
       double measuredSpeed =
-          Math.abs(this.leftGearbox.getEncoderRate() + this.rightGearbox.getEncoderRate()) / 2.0;
+          Math.abs(this.leftEncoder.getRate() + this.rightEncoder.getRate()) / 2.0;
       // account for the possiblity of dividing by zero. Anything less than 5cm/s or
       // so is too noisy, set floor
       double measuredCurvature = measuredTurnRate / Math.max(measuredSpeed, 0.05);

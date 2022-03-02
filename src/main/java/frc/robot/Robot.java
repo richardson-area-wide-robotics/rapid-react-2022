@@ -6,6 +6,8 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -13,14 +15,17 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.autonomousCommands.AutonPathCommand;
-import frc.robot.commands.autonomousCommands.TrajectoryTutCommandGroup;
 import frc.robot.operatorInputs.Controls;
 import frc.robot.operatorInputs.OperatorInputs;
-// import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.BangBangArm;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.arm.BangBangArm;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Gyroscope;
+import frc.robot.subsystems.hangar.Hangar;
+import frc.robot.subsystems.lights.Lights;
+import frc.robot.subsystems.lights.LightsController;
+import frc.robot.subsystems.sensors.TOFSensor;
+import java.util.Map;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -30,19 +35,29 @@ import frc.robot.subsystems.drive.Gyroscope;
  */
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
-  private TrajectoryTutCommandGroup trajectoryTutCommand;
   private Drive drive;
   private Gyroscope gyro;
   private RobotContainer m_robotContainer;
   private Controls driverControls;
+  private Controls operatorControls;
   private OperatorInputs operatorInputs;
   // private Arm arm;
   private BangBangArm bangArm;
   private Intake intake;
-
-  private AutonPathCommand rightSideIntake_intakeAndScore;
+  private Hangar hangar;
+  private Lights lights;
+  private TOFSensor tofSensor;
+  private LightsController lightsController;
+  private AutonPathCommand rightSideIntake_intake;
   private AutonPathCommand rightSideIntake_intakeSingleCargo;
   private AutonPathCommand rightSideIntake_intakeFirstTaxi;
+  private AutonPathCommand rightSideIntake_scoreSingleCargo;
+  private AutonPathCommand rightSideIntake_score;
+
+  private AutonPathCommand leftSide_intake;
+  private AutonPathCommand leftSide_score;
+  private AutonPathCommand leftSide_taxi;
+  private AutonPathCommand leftSide_terminal;
 
   private AutonPathCommand rightSideScore_backupAndAlign;
   private AutonPathCommand rightSideScore_intakeTwoCargo;
@@ -51,11 +66,13 @@ public class Robot extends TimedRobot {
 
   private SequentialCommandGroup rightSideIntake;
   private SequentialCommandGroup rightSideScore;
+  private SequentialCommandGroup leftSide;
 
   private SendableChooser<Command> autonomousChooser;
 
   // Constants
   private final int JOYSTICK_PORT_DRIVER = 1;
+  private final int JOYSTICK_PORT_OPERATOR = 0;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -67,20 +84,36 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
     this.driverControls = new Controls(new Joystick(JOYSTICK_PORT_DRIVER));
+    this.operatorControls = new Controls(new Joystick(JOYSTICK_PORT_OPERATOR));
     this.gyro = new Gyroscope();
     this.drive = new Drive(gyro);
     // this.arm = new Arm();
     this.intake = new Intake(9, false);
     this.bangArm = new BangBangArm(8, 7);
-    this.operatorInputs = new OperatorInputs(driverControls, drive, bangArm, intake);
-
-    this.rightSideIntake_intakeAndScore =
-        new AutonPathCommand(drive, "rightSideIntake/rightSideIntake_intakeAndScore.wpilib.json");
+    this.hangar = new Hangar(10, 1, 0, 1, 2, 3);
+    this.lights = new Lights(9, 60, 50);
+    this.lightsController = new LightsController(this.lights, this.tofSensor);
+    this.tofSensor = new TOFSensor(1);
+    new InstantCommand(() -> this.hangar.enableCompressor());
+    this.operatorInputs =
+        new OperatorInputs(driverControls, operatorControls, drive, bangArm, intake, hangar);
+    // this.hangar.enableCompressor();
+    this.rightSideIntake_intake =
+        new AutonPathCommand(drive, "rightSideIntake/rightSideIntake_intake.wpilib.json");
+    this.rightSideIntake_score =
+        new AutonPathCommand(drive, "rightSideIntake/rightSideIntake_score.wpilib.json");
     this.rightSideIntake_intakeSingleCargo =
         new AutonPathCommand(
             drive, "rightSideIntake/rightSideIntake_intakeSingleCargo.wpilib.json");
+    this.rightSideIntake_scoreSingleCargo =
+        new AutonPathCommand(drive, "rightSideIntake/rightSideIntake_scoreSingleCargo.wpilib.json");
     this.rightSideIntake_intakeFirstTaxi =
         new AutonPathCommand(drive, "rightSideIntake/rightSideIntake_intakeFirstTaxi.wpilib.json");
+
+    this.leftSide_intake = new AutonPathCommand(drive, "leftside/leftSide_intake.wpilib.json");
+    this.leftSide_score = new AutonPathCommand(drive, "leftside/leftSide_score.wpilib.json");
+    this.leftSide_taxi = new AutonPathCommand(drive, "leftside/leftSide_taxi.wpilib.json");
+    this.leftSide_terminal = new AutonPathCommand(drive, "leftside/leftSide_terminal.wpilib.json");
 
     this.rightSideScore_backupAndAlign =
         new AutonPathCommand(drive, "rightSideScore/rightSideScore_backupAndAlign.wpilib.json");
@@ -93,24 +126,73 @@ public class Robot extends TimedRobot {
 
     this.rightSideScore =
         new SequentialCommandGroup(
-            // new InstantCommand(() -> this.intake.outtake(), intake),
             new InstantCommand(() -> this.rightSideScore_backupAndAlign.resetOdometryToPathStart()),
+            // new InstantCommand(() -> this.intake.outtake(), intake),
             this.rightSideScore_backupAndAlign.getRamseteCommand());
-    // this.rightSideScore_intakeTwoCargo.getRamseteCommand(),
+    // new InstantCommand(() -> this.bangArm.toggleArmPosition(), bangArm),
+    // new ParallelCommandGroup(new InstantCommand(() -> this.intake.gather(), intake),
+    // this.rightSideScore_intakeTwoCargo.getRamseteCommand());
+    // new InstantCommand(() -> this.bangArm.toggleArmPosition(), bangArm),
     // this.rightSideScore_scoreCargo.getRamseteCommand(),
+    // new InstantCommand(() -> this.intake.outtake(), intake),
     // this.rightSideScore_scoreFirstTaxi.getRamseteCommand());
+
+    this.leftSide =
+        new SequentialCommandGroup(
+            new InstantCommand(() -> this.leftSide_intake.resetOdometryToPathStart()),
+            // new InstantCommand(() -> this.bangArm.toggleArmPosition(), bangArm),
+            this.leftSide_intake.getRamseteCommand());
+    // new InstantCommand(() -> this.intake.gather(), intake))
+    // new InstantCommand(() -> this.bangArm.toggleArmP,osition(), bangArm),
+    // this.leftSide_score.getRamseteCommand(),
+    // new InstantCommand(() -> this.intake.outtake(), intake)
+    // this.leftSide_taxi.getRamseteCommand());
 
     this.rightSideIntake =
         new SequentialCommandGroup(
-            new InstantCommand(
-                () -> this.rightSideIntake_intakeAndScore.resetOdometryToPathStart()),
-            this.rightSideIntake_intakeAndScore.getRamseteCommand());
+            new InstantCommand(() -> this.rightSideIntake_intake.resetOdometryToPathStart()),
+            // new InstantCommand(() -> this.bangArm.toggleArmPosition(), bangArm),
+            this.rightSideIntake_intake.getRamseteCommand(),
+            // new InstantCommand(() -> this.intake.gather(), intake),
+            // new InstantCommand(() -> this.bangArm.toggleArmPosition(), bangArm),
+            this.rightSideIntake_score.getRamseteCommand());
+    // new InstantCommand(() -> this.intake.outtake(), intake),
+    // new InstantCommand(() -> this.bangArm.toggleArmPosition(), bangArm),
     // this.rightSideIntake_intakeSingleCargo.getRamseteCommand(),
+    // new InstantCommand(() -> this.intake.gather(), intake),
+    // new InstantCommand(() -> this.bangArm.toggleArmPosition(), bangArm),
+    // this.rightSideIntake_scoreSingleCargo.getRamseteCommand(),
+    // new InstantCommand(() -> this.intake.outtake(), intake)
     // this.rightSideIntake_intakeFirstTaxi.getRamseteCommand());
 
     this.autonomousChooser = new SendableChooser<>();
     this.autonomousChooser.setDefaultOption("Right Side Score", this.rightSideScore);
     this.autonomousChooser.addOption("Right Side Intake", this.rightSideIntake);
+    this.autonomousChooser.addOption("Left Side Auton", this.leftSide);
+
+    InstantCommand armUpCommand = new InstantCommand(() -> this.bangArm.runToScore());
+    InstantCommand armDownCommand = new InstantCommand(() -> this.bangArm.runToIntake());
+    InstantCommand commandIntake = new InstantCommand(() -> this.bangArm.runToIntake());
+    InstantCommand commandOutake = new InstantCommand(() -> this.bangArm.runToIntake());
+
+    Shuffleboard.getTab("Operator Controls")
+        .getLayout("Arm", BuiltInLayouts.kList)
+        .withSize(2, 2)
+        .withProperties(Map.of("Label position", "HIDDEN"))
+        .add(armUpCommand);
+    // Shuffleboard.getTab("Operator Controls")
+    // .getLayout("Arm")
+    // .add(armDownCommand);
+    /* Shuffleboard.getTab("Operator Controls")
+        .getLayout("Intake", BuiltInLayouts.kList)
+        .add(commandIntake);
+    Shuffleboard.getTab("OperatorControls")
+        .getLayout("Intake")
+        .add(commandOutake);
+    Shuffleboard.getTab("Constants")
+        .add("gyro angle value", this.gyro.getGyroAngle())
+        .withWidget(BuiltInWidgets.kGyro)
+         .getEntry();#*/
 
     // Put the chooser on the dashboard
     SmartDashboard.putData(this.autonomousChooser);
@@ -120,11 +202,16 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("right encoder value", this.drive.getRightEncoderDistance());
     SmartDashboard.putNumber("left encoder value", this.drive.getLeftEncoderDistance());
     SmartDashboard.putNumber("Arm Position", this.bangArm.getPosition());
-
-    // Shuffleboard.getTab("Drive")
-    //     .add("gyro angle value", this.gyro.getGyroAngle())
-    //     .withWidget(BuiltInWidgets.kGyro)
-    //     .getEntry();
+    SmartDashboard.putNumber("Analog Value", this.hangar.getAnalogVoltage());
+    SmartDashboard.putNumber("Pressure of Anolog", this.hangar.getPressure());
+    SmartDashboard.putNumber("gyro angle", this.gyro.getGyroAngle());
+    SmartDashboard.putNumber("gyro rate", this.gyro.getRate());
+    SmartDashboard.putData(
+        "Mid Elevator Raise", new InstantCommand(() -> hangar.runToReleaseHeight(), hangar));
+    SmartDashboard.putData(
+        "Realese High Climb Hook", new InstantCommand(() -> hangar.releaseFlippyHooks(), hangar));
+    SmartDashboard.putData(
+        "Realse Mid Climber attachment", new InstantCommand(() -> hangar.engageMidHooks(), hangar));
   }
 
   /**
@@ -154,6 +241,8 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    new InstantCommand(() -> this.hangar.enableCompressor());
+    // hangar.enableCompressor();
     this.autonomousChooser.getSelected().schedule();
   }
 
@@ -169,9 +258,8 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    if (bangArm.atReverseLimit() == true) {
-      intake.gather();
-    }
+    // hangar.enableCompressor();
+    new InstantCommand(() -> this.hangar.enableCompressor());
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
