@@ -1,0 +1,14 @@
+{
+  "baseName" : "mmal service 16.1",
+  "uniqueName" : "mmal_service_16.1",
+  "nickname" : "slotheye",
+  "FOV" : 70.0,
+  "path" : "/dev/video2",
+  "cameraType" : "ZeroCopyPicam",
+  "currentPipelineIndex" : -1,
+  "camPitch" : {
+    "radians" : 0.0
+  },
+  "calibrations" : [ ],
+  "streamIndex" : 1
+}
