@@ -9,8 +9,8 @@ public class BangBangArm extends SubsystemBase {
   private CANSparkMax leftMotor;
   private CANSparkMax rightMotor;
 
-  private final float REVERSE_LIMIT = (float) -26.5;
-  private final float FORWARD_LIMIT = (float) 0;
+  private float REVERSE_LIMIT = (float) -26.5;
+  private float FORWARD_LIMIT = (float) 0;
   private final double REVERSE_SPEED = -0.50;
   private final double FORWARD_SPEED = 0.37;
   private final double RAMPRATE = 0.1;
@@ -32,6 +32,7 @@ public class BangBangArm extends SubsystemBase {
     this.rightMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
 
     this.leftMotor = new CANSparkMax(leftMotorCANID, MotorType.kBrushless);
+    this.leftMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
     // this.leftMotor.setInverted(invertLeftMotor);
     this.leftMotor.follow(this.rightMotor, true);
   }
@@ -80,5 +81,45 @@ public class BangBangArm extends SubsystemBase {
     } else {
       this.runToIntake();
     }
+  }
+
+  public boolean resetBangArmDownPosition() {
+    this.rightMotor
+        .getEncoder()
+        .setPosition(
+            REVERSE_LIMIT); // put the arm fully down. and set the encoder  to its full down
+    // position
+    return true;
+  }
+
+  public boolean resetBangArmUpPosition() {
+    this.rightMotor
+        .getEncoder()
+        .setPosition(
+            FORWARD_LIMIT); // put the arm fully down. and set the encoder  to its full down
+    // position
+    return true;
+  }
+
+  /*public void armPositioningManipulation() {
+    if (resetBangArmPosition() == false){
+      if (this.m_Position == armPosition.INTAKE_ARM_POSITION) {
+        this.runToScore();
+      } else {
+        this.runToIntake();
+      }
+    }
+    //if (resetBangArmPosition() == true){
+      //REVERSE_LIMIT = (float) -26.5;
+      //FORWARD_LIMIT = (float) 0;
+    //  if (this.m_Position == armPosition.INTAKE_ARM_POSITION){
+     //   this.runToScore();
+     // } else {
+     //   this.runToIntake();
+     // }
+  }*/
+
+  public void inverseToggleArmPosition() {
+    if (resetBangArmDownPosition() == true) {}
   }
 }

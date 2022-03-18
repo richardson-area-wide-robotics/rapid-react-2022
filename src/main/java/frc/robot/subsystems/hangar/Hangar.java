@@ -14,10 +14,10 @@ public class Hangar extends SubsystemBase {
   private CANSparkMax elevatorMotor;
   private SparkMaxPIDController elevatorPIDController;
   private DoubleSolenoid midPneumatics;
-  private DoubleSolenoid flippyArms;
+  public DoubleSolenoid flippyArms;
   private final double MIDHEIGHT = 85.27; // where scoring at the mid height would be
   private final double FLIPPYHEIGHT = 3.01; // where we need to be to score the flippy hooks
-  private final double RELEASEHEIGHT = 1.25; // where we need to be to score the release hooks
+  private final double RELEASEHEIGHT = 0.10; // where we need to be to score the release hooks
   private final double DEADBAND = 0.5; // the amount of play allow in our PID controller
   private final float SOFTLIMIT_REVERSE = 0;
   private final float SOFTLIMIT_FORWARD = 90; // Max height of the elevator
@@ -59,6 +59,7 @@ public class Hangar extends SubsystemBase {
     this.flippyArms.set(DoubleSolenoid.Value.kOff);
     compressor = new Compressor(pneumaticsModule_CanID, PneumaticsModuleType.REVPH);
     compressor.enableAnalog(110, 120);
+    this.flippyArms.set(DoubleSolenoid.Value.kForward);
   }
 
   /** */
@@ -109,7 +110,7 @@ public class Hangar extends SubsystemBase {
   }
 
   public void releaseFlippyHooks() {
-    this.flippyArms.set(DoubleSolenoid.Value.kForward);
+    this.flippyArms.set(DoubleSolenoid.Value.kReverse);
   }
 
   public boolean isAtZero() {

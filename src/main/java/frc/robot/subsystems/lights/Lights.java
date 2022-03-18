@@ -31,6 +31,16 @@ public class Lights {
     executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
   }
 
+  public void Lights2(int pwmPort, int numLeds, long delay) {
+    ledStrip = new AddressableLED(pwmPort);
+    ledBuffer = new AddressableLEDBuffer(numLeds);
+    this.delay = delay;
+    ledStrip.setLength(ledBuffer.getLength());
+    ledStrip.setData(ledBuffer);
+    ledStrip.start();
+    executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
+  }
+
   public void allBlue() {
     this.setColor(BLUE);
   }
@@ -90,13 +100,13 @@ public class Lights {
               while (true) {
                 for (int x = ledBuffer.getLength() - length; x > 1; x--) {
                   for (int y = 0; y < length; y++) {
-                    ledBuffer.setLED((ledBuffer.getLength() - length) - x + y, RED);
-                    ledBuffer.setLED(x + y, RED);
+                    ledBuffer.setLED((ledBuffer.getLength() - length) - x + y, LIME_GREEN);
+                    ledBuffer.setLED(x + y, LIME_GREEN);
                   }
                   ledStrip.setData(ledBuffer);
                   for (int y = 0; y < length; y++) {
-                    ledBuffer.setLED((ledBuffer.getLength() - length) - x + y, BLUE);
-                    ledBuffer.setLED(x + y, BLUE);
+                    ledBuffer.setLED((ledBuffer.getLength() - length) - x + y, YELLOW);
+                    ledBuffer.setLED(x + y, YELLOW);
                   }
                   Thread.sleep(delay);
                 }
@@ -108,4 +118,6 @@ public class Lights {
           });
     }
   }
+
+  public class lights2 {}
 }

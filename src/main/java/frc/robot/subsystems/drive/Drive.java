@@ -121,7 +121,7 @@ public class Drive extends SubsystemBase {
    * @return The current wheel speeds, in meters per second
    */
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-    return new DifferentialDriveWheelSpeeds(getLeftEncoderRate(), getRightEncoderDistance());
+    return new DifferentialDriveWheelSpeeds(getLeftEncoderRate(), getRightEncoderRate());
   }
 
   /**

@@ -64,7 +64,7 @@ public class LimeLight {
     SmartDashboard.putNumber("LimelightArea", area);
   }
 
-  public void robotAiming(double turn) {
+  public double getrobotAiming(double turn) {
     double steering_adjust = 0.0f;
     double heading_error = x * -1;
     if (x > 1.0) {
@@ -75,6 +75,8 @@ public class LimeLight {
     }
      turn += steering_adjust;
     turn -= steering_adjust;
+
+    return steering_adjust;
   }
 
   public void seekTarget() {
@@ -98,6 +100,10 @@ public class LimeLight {
     // left_command += distance_adjust;
     // right_command += distance_adjust;
   }
+
+  public boolean hasValidTarget() {
+        return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0.0) > 0;
+      }
 
   public void aimAndMoveRobot() {
     double steering_adjust = 0.0f;

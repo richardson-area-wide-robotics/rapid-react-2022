@@ -2,6 +2,7 @@ package frc.robot.operatorInputs;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import frc.robot.commands.drivingCommands.RobotAimingCommand;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.arm.BangBangArm;
 import frc.robot.subsystems.drive.Drive;
@@ -17,7 +18,8 @@ public class OperatorInputs {
       Drive drive,
       BangBangArm bangArm,
       Intake intake,
-      Hangar hangar) {
+      Hangar hangar,
+      RobotAimingCommand aimRobot) {
 
     // Driver commands
     drive.setDefaultCommand(
@@ -27,14 +29,19 @@ public class OperatorInputs {
               // forward.
               double throttle = -driverControls.getLeftY(JOYSTICK_DEADZONE);
               double turn = driverControls.getRightX(JOYSTICK_DEADZONE);
-              turn *= Math.abs(turn);
+              turn *= 1.0 * Math.abs(turn * turn);
               drive.curvatureDrive(throttle, turn);
             },
             drive));
+    driverControls.getLeftJoystickBumper().whenHeld(aimRobot);
 
     operatorControls
         .getJoystickXButton()
         .whenPressed(new InstantCommand(() -> bangArm.toggleArmPosition(), bangArm));
+
+    // operatorControls
+    //     .getJoystickXButton()
+    //     .whenPressed(new InstantCommand(() -> bangArm.armPositioningManipulation(), bangArm));
 
     operatorControls
         .getLeftJoystickBumper()
@@ -77,6 +84,9 @@ public class OperatorInputs {
       }*/
   }
 
+  public boolean getVisionButtonStatus() {
+    return false;
+  }
   // hanger controlls
   // raise hanger to mid hooks
   // engage mid hangers
