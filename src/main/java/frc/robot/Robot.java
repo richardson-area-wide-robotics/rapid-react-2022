@@ -85,7 +85,6 @@ public class Robot extends TimedRobot {
   private SequentialCommandGroup backUp;
   private SequentialCommandGroup fourBallAuton;
 
-
   private SequentialCommandGroup autoClimber;
 
   private SendableChooser<Command> autonomousChooser;
@@ -105,10 +104,11 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer();
     this.driverControls = new Controls(new Joystick(JOYSTICK_PORT_DRIVER));
     this.operatorControls = new Controls(new Joystick(JOYSTICK_PORT_OPERATOR));
-    this.limelightCamera = CameraServer.addServer("http://limelight.local:5801/stream.mjpg").getSource();
+    this.limelightCamera =
+        CameraServer.addServer("http://limelight.local:5801/stream.mjpg").getSource();
     this.gyro = new Gyroscope();
     this.drive = new Drive(gyro);
-    this.intake = new Intake(9/*, 2*/, false);
+    this.intake = new Intake(9 /*, 2*/, false);
     this.bangArm = new BangBangArm(8, 7);
     this.aimRobot = new RobotAimingCommand();
     this.limeLight = new LimeLight();
@@ -116,11 +116,12 @@ public class Robot extends TimedRobot {
     this.hangar = new Hangar(10, 1, 0, 1, 2, 3);
     this.lights = new Lights(9, 60, 50);
     this.lightsController = new LightsController(this.lights, this.tofSensor, this.limeLight);
-    //this.tofSensor = new TOFSensor(0);
-    //this.tofSensor = new TOFSensor(2);
+    // this.tofSensor = new TOFSensor(0);
+    // this.tofSensor = new TOFSensor(2);
     new InstantCommand(() -> this.hangar.enableCompressor());
     this.operatorInputs =
-    new OperatorInputs(driverControls, operatorControls, drive, bangArm, intake, hangar, aimRobot);
+        new OperatorInputs(
+            driverControls, operatorControls, drive, bangArm, intake, hangar, aimRobot);
     this.hangarPath = new AutonPathCommand(drive, "hangarPath.wpilib.json");
     this.rightSideIntake_intake =
         new AutonPathCommand(drive, "rightSideIntake/rightSideIntake_intake.wpilib.json");
@@ -162,20 +163,20 @@ public class Robot extends TimedRobot {
             this.rightSideScore_backupAndAlign.getRamseteCommand(),
             new InstantCommand(() -> this.bangArm.toggleArmPosition(), bangArm),
             new ParallelCommandGroup(
-                new InstantCommand(() -> this.intake.gather(), intake), this
-                    .rightSideScore_turnIntake.getRamseteCommand()),
+                new InstantCommand(() -> this.intake.gather(), intake),
+                this.rightSideScore_turnIntake.getRamseteCommand()),
             new WaitCommand(0.1),
             new InstantCommand(() -> this.intake.idle(), intake),
             new ParallelCommandGroup(
                 new InstantCommand(() -> this.intake.gather(), intake),
                 this.rightSideScore_intakeTwoCargo.getRamseteCommand()),
-                new WaitCommand(0.3),
-                new InstantCommand(() -> this.intake.idle(), intake),
-    new InstantCommand(() -> this.bangArm.toggleArmPosition(), bangArm),
-    this.rightSideScore_scoreCargo.getRamseteCommand(),
-    new InstantCommand(() -> this.intake.outtake(), intake),
-    new WaitCommand(0.1),
-    new InstantCommand(() -> this.intake.idle(), intake));
+            new WaitCommand(0.3),
+            new InstantCommand(() -> this.intake.idle(), intake),
+            new InstantCommand(() -> this.bangArm.toggleArmPosition(), bangArm),
+            this.rightSideScore_scoreCargo.getRamseteCommand(),
+            new InstantCommand(() -> this.intake.outtake(), intake),
+            new WaitCommand(0.1),
+            new InstantCommand(() -> this.intake.idle(), intake));
 
     this.backUp =
         new SequentialCommandGroup(
@@ -201,24 +202,24 @@ public class Robot extends TimedRobot {
             new InstantCommand(() -> this.leftSide_taxi.resetOdometryToPathStart()),
             this.leftSide_taxi.getRamseteCommand());
 
-    this.fourBallAuton = 
-    new SequentialCommandGroup(
-        new InstantCommand(() -> this.leftSide_intake.resetOdometryToPathStart()),
-        new InstantCommand(() -> this.bangArm.toggleArmPosition(), bangArm),
-        new ParallelCommandGroup(
-            new InstantCommand(() -> this.intake.gather(), intake),
-            this.leftSide_intake.getRamseteCommand()),
-        new InstantCommand(() -> this.intake.idle(), intake),
-        new InstantCommand(() -> this.bangArm.toggleArmPosition(), bangArm),
-        this.leftSide_score.getRamseteCommand(),
-        new InstantCommand(() -> this.intake.outtake(), intake),
-        new WaitCommand(0.2),
-        new InstantCommand(() -> this.intake.idle(), intake),
-        new InstantCommand(() -> this.leftSide_backUp.resetOdometryToPathStart()),
-        this.leftSide_backUp.getRamseteCommand(),
-        this.leftSide_terminal.getRamseteCommand(),
-        new InstantCommand(() -> this.leftSide_terminal2.resetOdometryToPathStart()),
-        this.leftSide_terminal2.getRamseteCommand());
+    this.fourBallAuton =
+        new SequentialCommandGroup(
+            new InstantCommand(() -> this.leftSide_intake.resetOdometryToPathStart()),
+            new InstantCommand(() -> this.bangArm.toggleArmPosition(), bangArm),
+            new ParallelCommandGroup(
+                new InstantCommand(() -> this.intake.gather(), intake),
+                this.leftSide_intake.getRamseteCommand()),
+            new InstantCommand(() -> this.intake.idle(), intake),
+            new InstantCommand(() -> this.bangArm.toggleArmPosition(), bangArm),
+            this.leftSide_score.getRamseteCommand(),
+            new InstantCommand(() -> this.intake.outtake(), intake),
+            new WaitCommand(0.2),
+            new InstantCommand(() -> this.intake.idle(), intake),
+            new InstantCommand(() -> this.leftSide_backUp.resetOdometryToPathStart()),
+            this.leftSide_backUp.getRamseteCommand(),
+            this.leftSide_terminal.getRamseteCommand(),
+            new InstantCommand(() -> this.leftSide_terminal2.resetOdometryToPathStart()),
+            this.leftSide_terminal2.getRamseteCommand());
 
     this.rightSideIntake =
         new SequentialCommandGroup(

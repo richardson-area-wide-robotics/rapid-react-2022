@@ -19,12 +19,12 @@ public class LightsController extends SubsystemBase {
   }
 
   public void checkTargetLock() {
-      if (limeLight.hasValidTarget() && !isIdle) {
-          lights.allLimeGreen();
-          isIdle = true;
-      } else if(!limeLight.hasValidTarget() && isIdle){
-          lights.idleAnimation(3);
-          isIdle = false;
-      }
+    if (limeLight.hasValidTarget() && !isIdle) {
+      lights.allLimeGreen();
+      isIdle = true;
+    } else if (!limeLight.hasValidTarget() && isIdle) {
+      lights.idleAnimation(3);
+      isIdle = false;
+    }
   }
 }

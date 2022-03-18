@@ -19,8 +19,8 @@ public class Intake extends SubsystemBase {
     this.intakeMotor.setInverted(invertIntakeMotor);
     this.intakeMotor.setOpenLoopRampRate(RAMPRATE);
 
-    //this.otherIntakeMotor = new CANSparkMax(otherMotorCANID, MotorType.kBrushless);
-    //this.otherIntakeMotor.follow(this.intakeMotor, true);
+    // this.otherIntakeMotor = new CANSparkMax(otherMotorCANID, MotorType.kBrushless);
+    // this.otherIntakeMotor.follow(this.intakeMotor, true);
   }
 
   public void idle() {

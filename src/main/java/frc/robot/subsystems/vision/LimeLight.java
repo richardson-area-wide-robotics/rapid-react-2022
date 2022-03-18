@@ -17,7 +17,7 @@ public class LimeLight {
   NetworkTableEntry camtran = table.getEntry("camtran");
 
   public void setPipeline(NetworkTableEntry pipeline) {
-      this.pipeline = pipeline;
+    this.pipeline = pipeline;
   }
 
   // read values periodically
@@ -73,7 +73,7 @@ public class LimeLight {
     } else if (x < 1.0) {
       steering_adjust = Kp * heading_error + min_Command;
     }
-     turn += steering_adjust;
+    turn += steering_adjust;
     turn -= steering_adjust;
 
     return steering_adjust;
@@ -102,8 +102,9 @@ public class LimeLight {
   }
 
   public boolean hasValidTarget() {
-        return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0.0) > 0;
-      }
+    return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0.0)
+        > 0;
+  }
 
   public void aimAndMoveRobot() {
     double steering_adjust = 0.0f;

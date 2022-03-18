@@ -3,6 +3,7 @@ package frc.robot.subsystems.drive;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.Encoder;
@@ -80,12 +81,27 @@ public class Drive extends SubsystemBase {
     this.leftEncoder.setReverseDirection(true);
   }
 
+  double last_dist_l = 0;
+  double last_dist_r = 0;
+
   @Override
   public void periodic() {
     this.differentialDriveOdometry.update(
         this.gyroscope.getRotation2d(),
         this.leftEncoder.getDistance(),
         this.rightEncoder.getDistance());
+
+    double dist_l = leftEncoder.getDistance();
+    double dist_r = rightEncoder.getDistance();
+    double delta_l = dist_l - last_dist_l;
+    double delta_r = dist_r - last_dist_r;
+    last_dist_l = dist_l;
+    last_dist_r = dist_r;
+
+    // Clockwise (turn right) is positive gyro reading
+    double turn_rad = (delta_l - delta_r) / DriveConstants.kDriveTrackWidthMeters;
+
+    gyroscope.rotationFromWheelOdometry(Rotation2d.fromDegrees(Math.toDegrees(turn_rad)));
   }
 
   /** Returns the currently-estimated pose of the robot. */
@@ -97,6 +113,8 @@ public class Drive extends SubsystemBase {
   public void resetEncoders() {
     this.leftEncoder.reset();
     this.rightEncoder.reset();
+    last_dist_l = 0;
+    last_dist_r = 0;
   }
 
   public double getLeftEncoderDistance() {
