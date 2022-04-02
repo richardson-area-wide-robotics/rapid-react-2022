@@ -7,18 +7,18 @@ import frc.robot.subsystems.vision.LimeLight;
 public class LightsController extends SubsystemBase {
   private Lights lights;
   private TOFSensor tofSensor;
-  private LimeLight limeLight;
+ // private LimeLight limeLight;
   boolean isIdle = true;
 
-  public LightsController(Lights lights, TOFSensor tofSensor, LimeLight limeLight) {
+  public LightsController(Lights lights, TOFSensor tofSensor/*, LimeLight limeLight*/) {
     this.lights = lights;
     this.tofSensor = new TOFSensor(1);
-    this.limeLight = limeLight;
+    //this.limeLight = limeLight;
     this.lights.idleAnimation(3);
     ;
   }
 
-  public void checkTargetLock() {
+  /*public void checkTargetLock() {
     if (limeLight.hasValidTarget() && !isIdle) {
       lights.allLimeGreen();
       isIdle = true;
@@ -26,5 +26,5 @@ public class LightsController extends SubsystemBase {
       lights.idleAnimation(3);
       isIdle = false;
     }
-  }
+  }*/
 }

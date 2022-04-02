@@ -13,14 +13,14 @@ public class Intake extends SubsystemBase {
   private final double FORWARD_SPEED = 0.80;
   private final double RAMPRATE = 0;
 
-  public Intake(int intakeMotorCANID /*int otherMotorCANID*/, Boolean invertIntakeMotor) {
+  public Intake(int intakeMotorCANID, int otherMotorCANID, Boolean invertIntakeMotor) {
     this.intakeMotor = new CANSparkMax(intakeMotorCANID, MotorType.kBrushless);
     this.intakeMotor.setSmartCurrentLimit(80); // 30 for a Neo550
     this.intakeMotor.setInverted(invertIntakeMotor);
     this.intakeMotor.setOpenLoopRampRate(RAMPRATE);
 
-    // this.otherIntakeMotor = new CANSparkMax(otherMotorCANID, MotorType.kBrushless);
-    // this.otherIntakeMotor.follow(this.intakeMotor, true);
+    this.otherIntakeMotor = new CANSparkMax(otherMotorCANID, MotorType.kBrushless);
+    this.otherIntakeMotor.follow(this.intakeMotor, true);
   }
 
   public void idle() {

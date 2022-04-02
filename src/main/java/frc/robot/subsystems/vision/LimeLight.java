@@ -4,8 +4,9 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class LimeLight {
+public class LimeLight extends SubsystemBase {
   // public Drive drive;
   NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
   NetworkTableEntry tx = table.getEntry("tx");
@@ -15,9 +16,10 @@ public class LimeLight {
   NetworkTableEntry pipeline = table.getEntry("getpipe");
   NetworkTableEntry ts = table.getEntry("ts");
   NetworkTableEntry camtran = table.getEntry("camtran");
+  
 
-  public void setPipeline(NetworkTableEntry pipeline) {
-    this.pipeline = pipeline;
+  public void setPipeline() {
+    NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(0);
   }
 
   // read values periodically
@@ -49,19 +51,72 @@ public class LimeLight {
   double desired_distance = 0.0; // number here should be in inches
 
   // Values for turning robot to target - need to adjust them for perfect turning
-  public double Kp = 0; // neeed to figure out this value for perfect aiming to target
-  float min_Command = 0; // also need to figure out this value
+  public double Kp = 0.05; // neeed to figure out this value for perfect aiming to target
+  double min_Command = 0.15; // also need to figure out this value
   double KpDistance = -0.1f; // Proportional control constant for distance
   double KpAim = -0.1f;
   double current_distance =
       distanceFromLimelightToGoalInches; // see the 'Case Study: Estimating Distance'
-  float min_aim_command = 0.05f;
+  float min_aim_command = 0.1f;
+  double heading_error = -getUpdatedTxValue();
+
 
   public LimeLight() {
     // post to smart dashboard periodically
-    SmartDashboard.putNumber("LimelightX", x);
-    SmartDashboard.putNumber("LimelightY", y);
-    SmartDashboard.putNumber("LimelightArea", area);
+  }
+
+  public void smartDashboard() {
+    //values i Want to see for smartdashboard
+    SmartDashboard.putNumber("LimelightX", getUpdatedTxValue());
+    //SmartDashboard.putNumber("LimelightY", getUpdatedTyValue());
+    //SmartDashboard.putNumber("LimelightV", getUpdatedTvValue());
+    //SmartDashboard.putNumber("LimelightArea", area);
+  }
+
+  public double getMin_Command(){
+    return min_Command;
+  }
+
+  public boolean getIsTargetFound() {
+    NetworkTableEntry tv = table.getEntry("tv");
+    double v = tv.getDouble(0);
+    if (v == 0.0f){
+        return false;
+    }else {
+        return true;
+    }
+}
+
+  public double getUpdatedTvValue() {
+    return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0.0);
+  }
+
+  public double getUpdatedTxValue() {
+    return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tx").getDouble(0.0);
+  }
+
+  public double getUpdatedTyValue() {
+    return NetworkTableInstance.getDefault().getTable("limelight").getEntry("ty").getDouble(0.0);
+  }
+
+  public double getheading_error() {
+    return heading_error;
+  }
+
+  public double getTxValue(){
+    return x;
+  }
+
+  public double getAimingValue(){
+    return Kp;
+  }
+
+  public boolean greaterTxAngle(){
+   return getUpdatedTxValue() > 1.0;
+  }
+
+  public boolean lessTxAngle(){
+    return getUpdatedTxValue() < 1.0;
   }
 
   public double getrobotAiming(double turn) {
@@ -102,8 +157,7 @@ public class LimeLight {
   }
 
   public boolean hasValidTarget() {
-    return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0.0)
-        > 0;
+    return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0.0) > 0;
   }
 
   public void aimAndMoveRobot() {

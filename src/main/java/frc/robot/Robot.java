@@ -105,17 +105,18 @@ public class Robot extends TimedRobot {
     this.driverControls = new Controls(new Joystick(JOYSTICK_PORT_DRIVER));
     this.operatorControls = new Controls(new Joystick(JOYSTICK_PORT_OPERATOR));
     this.limelightCamera =
-        CameraServer.addServer("http://limelight.local:5801/stream.mjpg").getSource();
+        CameraServer.addServer("http://10.17.45.47:5801/").getSource();
     this.gyro = new Gyroscope();
     this.drive = new Drive(gyro);
-    this.intake = new Intake(9 /*, 2*/, false);
+    this.intake = new Intake(9, 2, false);
     this.bangArm = new BangBangArm(8, 7);
     this.aimRobot = new RobotAimingCommand();
     this.limeLight = new LimeLight();
-    NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1);
+    NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(0);
+    NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(0);
     this.hangar = new Hangar(10, 1, 0, 1, 2, 3);
-    this.lights = new Lights(9, 60, 50);
-    this.lightsController = new LightsController(this.lights, this.tofSensor, this.limeLight);
+    //this.lights = new Lights(9, 60, 50);
+    //this.lightsController = new LightsController(this.lights, this.tofSensor/*, this.limeLight*/);
     // this.tofSensor = new TOFSensor(0);
     // this.tofSensor = new TOFSensor(2);
     new InstantCommand(() -> this.hangar.enableCompressor());
@@ -272,8 +273,8 @@ public class Robot extends TimedRobot {
 
     this.autonomousChooser = new SendableChooser<>();
     this.autonomousChooser.setDefaultOption("Right Side Score", this.rightSideScore);
-    this.autonomousChooser.addOption("Four Ball Auton", this.fourBallAuton);
-    this.autonomousChooser.addOption("Right Side Intake", this.rightSideIntake);
+    //this.autonomousChooser.addOption("Four Ball Auton", this.fourBallAuton);
+    //this.autonomousChooser.addOption("Right Side Intake", this.rightSideIntake);
     this.autonomousChooser.addOption("Left Side Auton", this.leftSide);
     this.autonomousChooser.addOption("back up auton", this.backUp);
 
@@ -347,12 +348,6 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Pressure of Anolog", this.hangar.getPressure());
     SmartDashboard.putNumber("gyro angle", this.gyro.getGyroAngle());
     SmartDashboard.putNumber("gyro rate", this.gyro.getRate());
-    SmartDashboard.putData(
-        "Mid Elevator Raise", new InstantCommand(() -> hangar.runToReleaseHeight(), hangar));
-    SmartDashboard.putData(
-        "Realese High Climb Hook", new InstantCommand(() -> hangar.releaseFlippyHooks(), hangar));
-    SmartDashboard.putData(
-        "Realse Mid Climber attachment", new InstantCommand(() -> hangar.engageMidHooks(), hangar));
   }
 
   /**
@@ -364,7 +359,8 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    this.updateSmartDashboardValues();
+    //this.updateSmartDashboardValues();
+    this.limeLight.smartDashboard();
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
@@ -388,7 +384,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    this.updateSmartDashboardValues();
+    //this.updateSmartDashboardValues();
   }
 
   @Override
@@ -398,11 +394,7 @@ public class Robot extends TimedRobot {
     // continue until interrupted by another command, remove
     // this line or comment it out.
     // hangar.enableCompressor();
-    if (this.bangArm.atReverseLimit() == true) {
-      new InstantCommand(() -> intake.gather(), intake);
-    } else {
-      new InstantCommand(() -> intake.idle(), intake);
-    }
+    this.limeLight.smartDashboard();
     new InstantCommand(() -> this.hangar.enableCompressor());
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();

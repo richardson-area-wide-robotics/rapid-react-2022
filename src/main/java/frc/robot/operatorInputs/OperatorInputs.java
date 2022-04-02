@@ -33,7 +33,8 @@ public class OperatorInputs {
               drive.curvatureDrive(throttle, turn);
             },
             drive));
-    driverControls.getLeftJoystickBumper().whenHeld(aimRobot);
+    driverControls.getLeftJoystickBumper().whenPressed(aimRobot, operatorControls.getAButton());
+    
 
     operatorControls
         .getJoystickXButton()
