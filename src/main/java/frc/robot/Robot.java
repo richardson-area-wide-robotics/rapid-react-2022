@@ -306,35 +306,6 @@ public class Robot extends TimedRobot {
         .getLayout("Intake", BuiltInLayouts.kList)
         .withSize(2, 2)
         .add("Motors Idle", new InstantCommand(() -> intake.idle(), intake));
-    Shuffleboard.getTab("Operator Controls")
-        .getLayout("Hangar", BuiltInLayouts.kList)
-        .withSize(4, 4)
-        .add(
-            "Mid Hook and elavator engaged",
-            new ParallelCommandGroup(
-                new InstantCommand(() -> hangar.runToMidHeight()),
-                new InstantCommand(() -> hangar.releaseMidHooks(), hangar)));
-    Shuffleboard.getTab("Operator Controls")
-        .getLayout("Hangar", BuiltInLayouts.kList)
-        .withSize(4, 4)
-        .add(
-            "Raise Robot Up on Mid", new InstantCommand(() -> hangar.runToReleaseHeight(), hangar));
-    Shuffleboard.getTab("Operator Controls")
-        .getLayout("Hangar", BuiltInLayouts.kList)
-        .withSize(4, 4)
-        .add(
-            "Release the High Climber Arm",
-            new InstantCommand(() -> hangar.releaseFlippyHooks(), hangar));
-    Shuffleboard.getTab("Operator Controls")
-        .getLayout("Hangar", BuiltInLayouts.kList)
-        .withSize(4, 4)
-        .add(
-            "Disengange the mid climber hooks",
-            new InstantCommand(() -> hangar.engageMidHooks(), hangar));
-    Shuffleboard.getTab("Drive Constants")
-        .add("gyro angle value", this.gyro.getGyroAngle())
-        .withWidget(BuiltInWidgets.kGyro)
-        .getEntry();
 
     // Put the chooser on the dashboard
     SmartDashboard.putData(this.autonomousChooser);

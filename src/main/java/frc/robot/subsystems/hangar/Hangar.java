@@ -7,6 +7,10 @@ import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Hangar extends SubsystemBase {
@@ -127,6 +131,34 @@ public class Hangar extends SubsystemBase {
 
   public boolean isAtFlippyHeight() {
     return Math.abs(this.getPosition() - FLIPPYHEIGHT) < DEADBAND;
+  }
+
+  public void smartDashboard() {
+    Shuffleboard.getTab("Operator Controls")
+        .getLayout("Hangar", BuiltInLayouts.kList)
+        .withSize(4, 4)
+        .add(
+            "Mid Hook and elavator engaged",
+            new ParallelCommandGroup(
+                new InstantCommand(() -> this.runToMidHeight()), // hangar.runToMidHeight(), hangar
+                new InstantCommand(() -> this.releaseMidHooks()))); // hangar.releaseMidHooks(), hangar
+    Shuffleboard.getTab("Operator Controls")
+        .getLayout("Hangar", BuiltInLayouts.kList)
+        .withSize(4, 4)
+        .add(
+            "Raise Robot Up on Mid", new InstantCommand(() -> this.runToReleaseHeight())); // hangar.runToReleaseHeight(), hangar
+    Shuffleboard.getTab("Operator Controls")
+        .getLayout("Hangar", BuiltInLayouts.kList)
+        .withSize(4, 4)
+        .add(
+            "Release the High Climber Arm",
+            new InstantCommand(() -> this.releaseFlippyHooks())); // hangar.releaseFlippyHooks(), hangar
+    Shuffleboard.getTab("Operator Controls")
+        .getLayout("Hangar", BuiltInLayouts.kList)
+        .withSize(4, 4)
+        .add(
+            "Disengange the mid climber hooks",
+            new InstantCommand(() -> this.engageMidHooks())); // hangar.engageMidHooks(), hangar
   }
 
   /**
