@@ -16,7 +16,6 @@ public class LimeLight extends SubsystemBase {
   NetworkTableEntry pipeline = table.getEntry("getpipe");
   NetworkTableEntry ts = table.getEntry("ts");
   NetworkTableEntry camtran = table.getEntry("camtran");
-  
 
   public void setPipeline() {
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(0);
@@ -60,32 +59,31 @@ public class LimeLight extends SubsystemBase {
   float min_aim_command = 0.1f;
   double heading_error = -getUpdatedTxValue();
 
-
   public LimeLight() {
     // post to smart dashboard periodically
   }
 
   public void smartDashboard() {
-    //values i Want to see for smartdashboard
+    // values i Want to see for smartdashboard
     SmartDashboard.putNumber("LimelightX", getUpdatedTxValue());
-    //SmartDashboard.putNumber("LimelightY", getUpdatedTyValue());
-    //SmartDashboard.putNumber("LimelightV", getUpdatedTvValue());
-    //SmartDashboard.putNumber("LimelightArea", area);
+    // SmartDashboard.putNumber("LimelightY", getUpdatedTyValue());
+    // SmartDashboard.putNumber("LimelightV", getUpdatedTvValue());
+    // SmartDashboard.putNumber("LimelightArea", area);
   }
 
-  public double getMin_Command(){
+  public double getMin_Command() {
     return min_Command;
   }
 
   public boolean getIsTargetFound() {
     NetworkTableEntry tv = table.getEntry("tv");
     double v = tv.getDouble(0);
-    if (v == 0.0f){
-        return false;
-    }else {
-        return true;
+    if (v == 0.0f) {
+      return false;
+    } else {
+      return true;
     }
-}
+  }
 
   public double getUpdatedTvValue() {
     return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0.0);
@@ -103,19 +101,19 @@ public class LimeLight extends SubsystemBase {
     return heading_error;
   }
 
-  public double getTxValue(){
+  public double getTxValue() {
     return x;
   }
 
-  public double getAimingValue(){
+  public double getAimingValue() {
     return Kp;
   }
 
-  public boolean greaterTxAngle(){
-   return getUpdatedTxValue() > 1.0;
+  public boolean greaterTxAngle() {
+    return getUpdatedTxValue() > 1.0;
   }
 
-  public boolean lessTxAngle(){
+  public boolean lessTxAngle() {
     return getUpdatedTxValue() < 1.0;
   }
 
@@ -157,7 +155,8 @@ public class LimeLight extends SubsystemBase {
   }
 
   public boolean hasValidTarget() {
-    return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0.0) > 0;
+    return NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv").getDouble(0.0)
+        > 0;
   }
 
   public void aimAndMoveRobot() {

@@ -141,18 +141,22 @@ public class Hangar extends SubsystemBase {
             "Mid Hook and elavator engaged",
             new ParallelCommandGroup(
                 new InstantCommand(() -> this.runToMidHeight()), // hangar.runToMidHeight(), hangar
-                new InstantCommand(() -> this.releaseMidHooks()))); // hangar.releaseMidHooks(), hangar
+                new InstantCommand(
+                    () -> this.releaseMidHooks()))); // hangar.releaseMidHooks(), hangar
     Shuffleboard.getTab("Operator Controls")
         .getLayout("Hangar", BuiltInLayouts.kList)
         .withSize(4, 4)
         .add(
-            "Raise Robot Up on Mid", new InstantCommand(() -> this.runToReleaseHeight())); // hangar.runToReleaseHeight(), hangar
+            "Raise Robot Up on Mid",
+            new InstantCommand(
+                () -> this.runToReleaseHeight())); // hangar.runToReleaseHeight(), hangar
     Shuffleboard.getTab("Operator Controls")
         .getLayout("Hangar", BuiltInLayouts.kList)
         .withSize(4, 4)
         .add(
             "Release the High Climber Arm",
-            new InstantCommand(() -> this.releaseFlippyHooks())); // hangar.releaseFlippyHooks(), hangar
+            new InstantCommand(
+                () -> this.releaseFlippyHooks())); // hangar.releaseFlippyHooks(), hangar
     Shuffleboard.getTab("Operator Controls")
         .getLayout("Hangar", BuiltInLayouts.kList)
         .withSize(4, 4)

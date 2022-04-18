@@ -2,11 +2,12 @@ package frc.robot.operatorInputs;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import frc.robot.commands.drivingCommands.RobotAimingCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.arm.BangBangArm;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.hangar.Hangar;
+import frc.robot.subsystems.hangar.Trav;
 
 public class OperatorInputs {
 
@@ -18,8 +19,8 @@ public class OperatorInputs {
       Drive drive,
       BangBangArm bangArm,
       Intake intake,
-      Hangar hangar,
-      RobotAimingCommand aimRobot) {
+      Trav trav
+      /*RobotAimingCommand aimRobot*/ ) {
 
     // Driver commands
     drive.setDefaultCommand(
@@ -33,8 +34,55 @@ public class OperatorInputs {
               drive.curvatureDrive(throttle, turn);
             },
             drive));
-    driverControls.getLeftJoystickBumper().whenPressed(aimRobot, operatorControls.getAButton());
-    
+    // trav.setDefaultCommand(
+    //     new  RunCommand(
+    //         () -> {
+    //             if (operatorControls.getLeftY(JOYSTICK_DEADZONE) >= 0.15){
+    //                 new InstantCommand(() -> trav.manualMoveArmIn(), trav);
+    //                 SmartDashboard.putString("arm Up", "if the arm is up");
+    //             }
+    //            else if (operatorControls.getLeftY(JOYSTICK_DEADZONE) <= -0.15){
+    //             new InstantCommand(() -> trav.manualMoveArmOut(), trav);
+    //             SmartDashboard.putString("arm Down", "if the arm is Down");
+    //            }
+    //         }, trav)
+    // );
+
+    // driverControls.getLeftJoystickBumper().whenPressed(aimRobot, operatorControls.getAButton());
+    operatorControls
+        .getJoystickYButton()
+        .whenPressed(new InstantCommand(() -> trav.runToMidHeight(), trav));
+    operatorControls
+        .getJoystickBButton()
+        .whenPressed(new InstantCommand(() -> trav.manualMoveArmOut()));
+    operatorControls
+        .getJoystickAButton()
+        .whenPressed(new InstantCommand(() -> trav.manualMoveArmIn(), trav));
+    driverControls
+        .getJoystickYButton()
+        .whenPressed(
+            new SequentialCommandGroup(
+                new InstantCommand(() -> trav.runToArmOutLineUp()),
+                new WaitCommand(.5),
+                new InstantCommand(
+                    () ->
+                        trav
+                            .runToHookHeight()) /*, new WaitCommand(1.0), new InstantCommand(() -> runToArmReleaseHeight())*/)); // hangar.runToLineUp(), hangar // hangar.runToHookHeight(), hangar
+    // operatorControls.getJoystickLeftTrigger().whenActive(new InstantCommand(() ->
+    // trav.manualMoveArmIn(), trav));
+    // operatorControls.getJoystickRightTrigger().whenActive(new InstantCommand(() ->
+    // trav.manualMoveArmOut(), trav));
+
+    //     if (operatorControls.getPOV() > 350 && operatorControls.getPOV() < 10 ){
+    //         new InstantCommand(() -> trav.manualMoveArmIn(), trav);
+    //         SmartDashboard.putString("arm Up", "if the arm is up");
+    //     }
+    //    else if (operatorControls.getPOV() > 170 && operatorControls.getPOV() < 190){
+    //     new InstantCommand(() -> trav.manualMoveArmOut(), trav);
+    //     SmartDashboard.putString("arm Down", "if the arm is Down");
+    //    }
+    //    SmartDashboard.putNumber("up dpad", operatorControls.getPOV());
+    //    SmartDashboard.putNumber("down dpad", operatorControls.getPOV());
 
     operatorControls
         .getJoystickXButton()
@@ -66,23 +114,6 @@ public class OperatorInputs {
         .getJoystickBButton()
         .whenPressed(new InstantCommand(() -> hangar.engageMidHooks(), hangar));*/
 
-    if (hangar.isAtZero()) {
-      operatorControls
-          .getJoystickYButton()
-          .whenPressed(new InstantCommand(() -> hangar.runToMidHeight(), hangar))
-          .whenPressed(new InstantCommand(() -> hangar.releaseMidHooks(), hangar));
-    } /*else if (hangar.isAtMidHeight()) {
-        operatorControls
-            .getJoystickYButton()
-            .whenPressed(new InstantCommand(() -> hangar.runToReleaseHeight(), hangar));
-      } else if (hangar.isAtReleaseHeight()) {
-        operatorControls
-            .getJoystickYButton()
-            .whenPressed(new InstantCommand(() -> hangar.releaseFlippyHooks(), hangar));
-        operatorControls
-            .getJoystickYButton()
-            .whenPressed(new InstantCommand(() -> hangar.engageMidHooks(), hangar));
-      }*/
   }
 
   public boolean getVisionButtonStatus() {

@@ -29,6 +29,8 @@ public class Controls {
   private final JoystickButton bJoystickButton;
   private final JoystickButton xJoystickButton;
   private final JoystickButton yJoystickButton;
+  private final JoystickButton leftTriggerJoystickButton;
+  private final JoystickButton rightTriggerJoystickButton;
 
   private final JoystickButton leftBumperJoystickButton;
   private final JoystickButton rightBumperJoystickButton;
@@ -41,6 +43,8 @@ public class Controls {
 
     aJoystickButton = new JoystickButton(joystick, A_BUTTON_ID);
     bJoystickButton = new JoystickButton(joystick, B_BUTTON_ID);
+    leftTriggerJoystickButton = new JoystickButton(joystick, LEFT_TRIGGER_ID);
+    rightTriggerJoystickButton = new JoystickButton(joystick, RIGHT_TRIGGER_ID);
     xJoystickButton = new JoystickButton(joystick, X_BUTTON_ID);
     yJoystickButton = new JoystickButton(joystick, Y_BUTTON_ID);
 
@@ -55,8 +59,20 @@ public class Controls {
     return joystick.getRawButton(B_BUTTON_ID);
   }
 
+  public int getPOV() {
+    return joystick.getPOV();
+  }
+
   public JoystickButton getJoystickBButton() {
     return bJoystickButton;
+  }
+
+  public JoystickButton getJoystickLeftTrigger() {
+    return leftTriggerJoystickButton;
+  }
+
+  public JoystickButton getJoystickRightTrigger() {
+    return rightTriggerJoystickButton;
   }
 
   public boolean getAButton() {

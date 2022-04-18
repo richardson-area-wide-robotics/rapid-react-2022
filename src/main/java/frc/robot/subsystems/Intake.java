@@ -9,8 +9,8 @@ public class Intake extends SubsystemBase {
   private CANSparkMax intakeMotor;
   private CANSparkMax otherIntakeMotor;
 
-  private final double REVERSE_SPEED = -0.80;
-  private final double FORWARD_SPEED = 0.80;
+  private final double REVERSE_SPEED = -.90;
+  private final double FORWARD_SPEED = 1.0;
   private final double RAMPRATE = 0;
 
   public Intake(int intakeMotorCANID, int otherMotorCANID, Boolean invertIntakeMotor) {

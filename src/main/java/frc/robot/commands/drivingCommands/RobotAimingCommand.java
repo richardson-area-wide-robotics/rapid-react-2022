@@ -12,9 +12,6 @@ public class RobotAimingCommand extends CommandBase {
   public Robot robot;
   public LimeLight limeLight;
   public OperatorInputs operatorInputs;
-  
-
-
 
   // Called just before this Command runs the first time
   @Override
@@ -23,18 +20,21 @@ public class RobotAimingCommand extends CommandBase {
   // Called repeatedly when this Command is scheduled to run
   @Override
   public void execute() {
-    //this.limeLight.setPipeline();
+    // this.limeLight.setPipeline();
     double steering_adjust = 0.0f;
     double turnCommand = 0;
-    
 
     if (this.limeLight.getUpdatedTxValue() > 1.0) {
-      steering_adjust = this.limeLight.getAimingValue() * (this.limeLight.getheading_error() - this.limeLight.getMin_Command());
+      steering_adjust =
+          this.limeLight.getAimingValue()
+              * (this.limeLight.getheading_error() - this.limeLight.getMin_Command());
 
     } else if (this.limeLight.getUpdatedTxValue() < 1.0) {
-      steering_adjust = this.limeLight.getAimingValue() * this.limeLight.getheading_error() + this.limeLight.getMin_Command();
+      steering_adjust =
+          this.limeLight.getAimingValue() * this.limeLight.getheading_error()
+              + this.limeLight.getMin_Command();
     }
-   turnCommand += steering_adjust;
+    turnCommand += steering_adjust;
     turnCommand -= steering_adjust;
 
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(3);
@@ -43,6 +43,6 @@ public class RobotAimingCommand extends CommandBase {
 
   @Override
   public boolean isFinished() {
-    return false; //robot.operatorInputs.getVisionButtonStatus();
+    return false; // robot.operatorInputs.getVisionButtonStatus();
   }
 }

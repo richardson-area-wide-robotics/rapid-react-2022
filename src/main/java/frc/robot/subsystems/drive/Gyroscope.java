@@ -53,7 +53,7 @@ public class Gyroscope extends SubsystemBase {
     lastHeading = Rotation2d.fromDegrees(0);
   }
 
-  public boolean isConnected(){
+  public boolean isConnected() {
     return ahrs.isConnected();
   }
 

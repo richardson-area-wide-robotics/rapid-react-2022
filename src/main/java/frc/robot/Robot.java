@@ -6,11 +6,9 @@ package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.VideoSource;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -28,7 +26,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.arm.BangBangArm;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Gyroscope;
-import frc.robot.subsystems.hangar.Hangar;
+import frc.robot.subsystems.hangar.Trav;
 import frc.robot.subsystems.lights.Lights;
 import frc.robot.subsystems.lights.LightsController;
 import frc.robot.subsystems.sensors.TOFSensor;
@@ -52,8 +50,9 @@ public class Robot extends TimedRobot {
   // private Arm arm;
   private BangBangArm bangArm;
   private Intake intake;
-  private Hangar hangar;
+
   private Lights lights;
+  private Trav trav;
   private LimeLight limeLight;
   private VideoSource limelightCamera;
   private TOFSensor tofSensor;
@@ -89,6 +88,8 @@ public class Robot extends TimedRobot {
 
   private SendableChooser<Command> autonomousChooser;
 
+  private double waitVal = .2;
+
   // Constants
   private final int JOYSTICK_PORT_DRIVER = 1;
   private final int JOYSTICK_PORT_OPERATOR = 0;
@@ -99,30 +100,33 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+    SmartDashboard.putNumber("Auto wait", .2);
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
     this.driverControls = new Controls(new Joystick(JOYSTICK_PORT_DRIVER));
     this.operatorControls = new Controls(new Joystick(JOYSTICK_PORT_OPERATOR));
-    this.limelightCamera =
-        CameraServer.addServer("http://10.17.45.47:5801/").getSource();
+    // this.limelightCamera =
+    // CameraServer.addServer("http://10.17.45.47:5801/").getSource();
     this.gyro = new Gyroscope();
     this.drive = new Drive(gyro);
     this.intake = new Intake(9, 2, false);
     this.bangArm = new BangBangArm(8, 7);
-    this.aimRobot = new RobotAimingCommand();
-    this.limeLight = new LimeLight();
-    NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(0);
-    NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(0);
-    this.hangar = new Hangar(10, 1, 0, 1, 2, 3);
-    //this.lights = new Lights(9, 60, 50);
-    //this.lightsController = new LightsController(this.lights, this.tofSensor/*, this.limeLight*/);
+    // this.aimRobot = new RobotAimingCommand();
+    // this.limeLight = new LimeLight();
+    // NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(0);
+    // NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(0);
+    // this.hangar = new Hangar(10, 1, 0, 1, 2, 3);
+    this.trav = new Trav(10, 36, 18, false);
+    // this.lights = new Lights(9, 60, 50);
+    // this.lightsController = new LightsController(this.lights, this.tofSensor/*,
+    // this.limeLight*/);
     // this.tofSensor = new TOFSensor(0);
     // this.tofSensor = new TOFSensor(2);
-    new InstantCommand(() -> this.hangar.enableCompressor());
+    this.trav.smartDashboard();
     this.operatorInputs =
         new OperatorInputs(
-            driverControls, operatorControls, drive, bangArm, intake, hangar, aimRobot);
+            driverControls, operatorControls, drive, bangArm, intake, trav /*, aimRobot*/);
     this.hangarPath = new AutonPathCommand(drive, "hangarPath.wpilib.json");
     this.rightSideIntake_intake =
         new AutonPathCommand(drive, "rightSideIntake/rightSideIntake_intake.wpilib.json");
@@ -179,11 +183,11 @@ public class Robot extends TimedRobot {
             new WaitCommand(0.1),
             new InstantCommand(() -> this.intake.idle(), intake));
 
-    this.backUp =
+    this.backUp = // smartdashboard number
         new SequentialCommandGroup(
             new InstantCommand(() -> this.backUpPath.resetOdometryToPathStart()),
             new InstantCommand(() -> this.intake.outtake(), intake),
-            new WaitCommand(0.2),
+            new WaitCommand(waitVal),
             new InstantCommand(() -> this.intake.idle(), intake),
             this.backUpPath.getRamseteCommand());
 
@@ -203,46 +207,46 @@ public class Robot extends TimedRobot {
             new InstantCommand(() -> this.leftSide_taxi.resetOdometryToPathStart()),
             this.leftSide_taxi.getRamseteCommand());
 
-    this.fourBallAuton =
-        new SequentialCommandGroup(
-            new InstantCommand(() -> this.leftSide_intake.resetOdometryToPathStart()),
-            new InstantCommand(() -> this.bangArm.toggleArmPosition(), bangArm),
-            new ParallelCommandGroup(
-                new InstantCommand(() -> this.intake.gather(), intake),
-                this.leftSide_intake.getRamseteCommand()),
-            new InstantCommand(() -> this.intake.idle(), intake),
-            new InstantCommand(() -> this.bangArm.toggleArmPosition(), bangArm),
-            this.leftSide_score.getRamseteCommand(),
-            new InstantCommand(() -> this.intake.outtake(), intake),
-            new WaitCommand(0.2),
-            new InstantCommand(() -> this.intake.idle(), intake),
-            new InstantCommand(() -> this.leftSide_backUp.resetOdometryToPathStart()),
-            this.leftSide_backUp.getRamseteCommand(),
-            this.leftSide_terminal.getRamseteCommand(),
-            new InstantCommand(() -> this.leftSide_terminal2.resetOdometryToPathStart()),
-            this.leftSide_terminal2.getRamseteCommand());
+    // this.fourBallAuton =
+    //     new SequentialCommandGroup(
+    //         new InstantCommand(() -> this.leftSide_intake.resetOdometryToPathStart()),
+    //         new InstantCommand(() -> this.bangArm.toggleArmPosition(), bangArm),
+    //         new ParallelCommandGroup(
+    //             new InstantCommand(() -> this.intake.gather(), intake),
+    //             this.leftSide_intake.getRamseteCommand()),
+    //         new InstantCommand(() -> this.intake.idle(), intake),
+    //         new InstantCommand(() -> this.bangArm.toggleArmPosition(), bangArm),
+    //         this.leftSide_score.getRamseteCommand(),
+    //         new InstantCommand(() -> this.intake.outtake(), intake),
+    //         new WaitCommand(0.2),
+    //         new InstantCommand(() -> this.intake.idle(), intake),
+    //         new InstantCommand(() -> this.leftSide_backUp.resetOdometryToPathStart()),
+    //         this.leftSide_backUp.getRamseteCommand(),
+    //         this.leftSide_terminal.getRamseteCommand(),
+    //         new InstantCommand(() -> this.leftSide_terminal2.resetOdometryToPathStart()),
+    //         this.leftSide_terminal2.getRamseteCommand());
 
-    this.rightSideIntake =
-        new SequentialCommandGroup(
-            new InstantCommand(() -> this.rightSideIntake_intake.resetOdometryToPathStart()),
-            new InstantCommand(() -> this.bangArm.toggleArmPosition(), bangArm),
-            new ParallelCommandGroup(
-                this.rightSideIntake_intake.getRamseteCommand(),
-                new InstantCommand(() -> this.intake.gather(), intake)),
-            new WaitCommand(0.1),
-            new InstantCommand(() -> this.intake.idle(), intake),
-            new InstantCommand(() -> this.bangArm.toggleArmPosition(), bangArm),
-            new InstantCommand(() -> this.rightSideIntake_score.resetOdometryToPathStart()),
-            this.rightSideIntake_score.getRamseteCommand(),
-            new InstantCommand(() -> this.intake.outtake(), intake),
-            new WaitCommand(0.2),
-            new InstantCommand(() -> this.intake.idle(), intake),
-            this.rightSideIntake_intakeSingleCargo.getRamseteCommand(),
-            new InstantCommand(() -> this.bangArm.toggleArmPosition(), bangArm),
-            new WaitCommand(0.2),
-            new InstantCommand(() -> this.intake.gather(), intake),
-            new WaitCommand(0.3),
-            new InstantCommand(() -> this.intake.idle(), intake));
+    // this.rightSideIntake =
+    //     new SequentialCommandGroup(
+    //         new InstantCommand(() -> this.rightSideIntake_intake.resetOdometryToPathStart()),
+    //         new InstantCommand(() -> this.bangArm.toggleArmPosition(), bangArm),
+    //         new ParallelCommandGroup(
+    //             this.rightSideIntake_intake.getRamseteCommand(),
+    //             new InstantCommand(() -> this.intake.gather(), intake)),
+    //         new WaitCommand(0.1),
+    //         new InstantCommand(() -> this.intake.idle(), intake),
+    //         new InstantCommand(() -> this.bangArm.toggleArmPosition(), bangArm),
+    //         new InstantCommand(() -> this.rightSideIntake_score.resetOdometryToPathStart()),
+    //         this.rightSideIntake_score.getRamseteCommand(),
+    //         new InstantCommand(() -> this.intake.outtake(), intake),
+    //         new WaitCommand(0.2),
+    //         new InstantCommand(() -> this.intake.idle(), intake),
+    //         this.rightSideIntake_intakeSingleCargo.getRamseteCommand(),
+    //         new InstantCommand(() -> this.bangArm.toggleArmPosition(), bangArm),
+    //         new WaitCommand(0.2),
+    //         new InstantCommand(() -> this.intake.gather(), intake),
+    //         new WaitCommand(0.3),
+    //         new InstantCommand(() -> this.intake.idle(), intake));
     /*new InstantCommand(() -> this.bangArm.toggleArmPosition(), bangArm),
     this.rightSideIntake_scoreSingleCargo.getRamseteCommand(),
       new InstantCommand(() -> this.intake.outtake(), intake),
@@ -273,8 +277,8 @@ public class Robot extends TimedRobot {
 
     this.autonomousChooser = new SendableChooser<>();
     this.autonomousChooser.setDefaultOption("Right Side Score", this.rightSideScore);
-    //this.autonomousChooser.addOption("Four Ball Auton", this.fourBallAuton);
-    //this.autonomousChooser.addOption("Right Side Intake", this.rightSideIntake);
+    // this.autonomousChooser.addOption("Four Ball Auton", this.fourBallAuton);
+    // this.autonomousChooser.addOption("Right Side Intake", this.rightSideIntake);
     this.autonomousChooser.addOption("Left Side Auton", this.leftSide);
     this.autonomousChooser.addOption("back up auton", this.backUp);
 
@@ -294,18 +298,18 @@ public class Robot extends TimedRobot {
         .add(
             "Arm up Reset Command",
             new InstantCommand(() -> bangArm.resetBangArmUpPosition(), bangArm));
-    Shuffleboard.getTab("Operator Controls")
-        .getLayout("Intake", BuiltInLayouts.kList)
-        .withSize(2, 2)
-        .add("Intake", new InstantCommand(() -> intake.gather(), intake));
-    Shuffleboard.getTab("Operator Controls")
-        .getLayout("Intake", BuiltInLayouts.kList)
-        .withSize(2, 2)
-        .add("Outake", new InstantCommand(() -> intake.outtake(), intake));
-    Shuffleboard.getTab("Operator Controls")
-        .getLayout("Intake", BuiltInLayouts.kList)
-        .withSize(2, 2)
-        .add("Motors Idle", new InstantCommand(() -> intake.idle(), intake));
+    // Shuffleboard.getTab("Operator Controls")
+    //     .getLayout("Intake", BuiltInLayouts.kList)
+    //     .withSize(2, 2)
+    //     .add("Intake", new InstantCommand(() -> intake.gather(), intake));
+    // Shuffleboard.getTab("Operator Controls")
+    //     .getLayout("Intake", BuiltInLayouts.kList)
+    //     .withSize(2, 2)
+    //     .add("Outake", new InstantCommand(() -> intake.outtake(), intake));
+    // Shuffleboard.getTab("Operator Controls")
+    //     .getLayout("Intake", BuiltInLayouts.kList)
+    //     .withSize(2, 2)
+    //     .add("Motors Idle", new InstantCommand(() -> intake.idle(), intake));
 
     // Put the chooser on the dashboard
     SmartDashboard.putData(this.autonomousChooser);
@@ -315,8 +319,6 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("right encoder value", this.drive.getRightEncoderDistance());
     SmartDashboard.putNumber("left encoder value", this.drive.getLeftEncoderDistance());
     SmartDashboard.putNumber("Arm Position", this.bangArm.getPosition());
-    SmartDashboard.putNumber("Analog Value", this.hangar.getAnalogVoltage());
-    SmartDashboard.putNumber("Pressure of Anolog", this.hangar.getPressure());
     SmartDashboard.putNumber("gyro angle", this.gyro.getGyroAngle());
     SmartDashboard.putNumber("gyro rate", this.gyro.getRate());
   }
@@ -330,8 +332,10 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    //this.updateSmartDashboardValues();
-    this.limeLight.smartDashboard();
+
+    // SmartDashboard.putNumber("Arm Position", this.trav.getArmPosition());
+    // this.updateSmartDashboardValues();
+    // this.limeLight.smartDashboard();
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
@@ -344,7 +348,20 @@ public class Robot extends TimedRobot {
   public void disabledInit() {}
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    double val = SmartDashboard.getNumber("Auto wait", 0.2);
+    if (val != waitVal) {
+      waitVal = val;
+      this.backUp = // smartdashboard number
+          new SequentialCommandGroup(
+              new InstantCommand(() -> this.backUpPath.resetOdometryToPathStart()),
+              new InstantCommand(() -> this.intake.outtake(), intake),
+              new WaitCommand(waitVal),
+              new InstantCommand(() -> this.intake.idle(), intake),
+              this.backUpPath.getRamseteCommand());
+      this.autonomousChooser.addOption("back up auton", this.backUp);
+    }
+  }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
@@ -355,7 +372,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    //this.updateSmartDashboardValues();
+    // this.updateSmartDashboardValues();
   }
 
   @Override
@@ -364,9 +381,7 @@ public class Robot extends TimedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    // hangar.enableCompressor();
-    this.limeLight.smartDashboard();
-    new InstantCommand(() -> this.hangar.enableCompressor());
+    // this.limeLight.smartDashboard();
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
