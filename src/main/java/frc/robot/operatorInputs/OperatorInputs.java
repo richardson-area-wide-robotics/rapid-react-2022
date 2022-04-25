@@ -19,8 +19,7 @@ public class OperatorInputs {
       Drive drive,
       BangBangArm bangArm,
       Intake intake,
-      Trav trav
-      /*RobotAimingCommand aimRobot*/ ) {
+      Trav trav ) {
 
     // Driver commands
     drive.setDefaultCommand(
@@ -48,7 +47,6 @@ public class OperatorInputs {
     //         }, trav)
     // );
 
-    // driverControls.getLeftJoystickBumper().whenPressed(aimRobot, operatorControls.getAButton());
     operatorControls
         .getJoystickYButton()
         .whenPressed(new InstantCommand(() -> trav.runToMidHeight(), trav));
@@ -61,13 +59,14 @@ public class OperatorInputs {
     driverControls
         .getJoystickYButton()
         .whenPressed(
-            new SequentialCommandGroup(
-                new InstantCommand(() -> trav.runToArmOutLineUp()),
-                new WaitCommand(.5),
+            new SequentialCommandGroup(new InstantCommand(
+                () ->
+                    trav
+                        .runToArmOutLineUp()), new WaitCommand(0.5),
                 new InstantCommand(
                     () ->
                         trav
-                            .runToHookHeight()) /*, new WaitCommand(1.0), new InstantCommand(() -> runToArmReleaseHeight())*/)); // hangar.runToLineUp(), hangar // hangar.runToHookHeight(), hangar
+                            .runToHookHeight()) /*, new WaitCommand(0.35), new InstantCommand(() -> trav.runToArmReleaseHeight())*/)); // hangar.runToLineUp(), hangar // hangar.runToHookHeight(), hangar
     // operatorControls.getJoystickLeftTrigger().whenActive(new InstantCommand(() ->
     // trav.manualMoveArmIn(), trav));
     // operatorControls.getJoystickRightTrigger().whenActive(new InstantCommand(() ->
@@ -83,6 +82,13 @@ public class OperatorInputs {
     //    }
     //    SmartDashboard.putNumber("up dpad", operatorControls.getPOV());
     //    SmartDashboard.putNumber("down dpad", operatorControls.getPOV());
+
+    driverControls.getJoystickBButton().whenPressed(new SequentialCommandGroup(
+        new InstantCommand(() -> trav.runToReleaseHeight()),
+        new WaitCommand(1.0),
+        new InstantCommand(
+            () ->
+                trav.runToArmReleaseHeight())));
 
     operatorControls
         .getJoystickXButton()
@@ -104,21 +110,9 @@ public class OperatorInputs {
     operatorControls
         .getRightJoystickBumper()
         .whenReleased(new InstantCommand(() -> intake.idle(), intake));
-    /*operatorControls
-        .getJoystickBButton()
-        .whenPressed(new InstantCommand(() -> hangar.runToReleaseHeight(), hangar));
-    operatorControls
-        .getJoystickAButton()
-        .whenPressed(new InstantCommand(() -> hangar.releaseFlippyHooks(), hangar));
-    driverControls
-        .getJoystickBButton()
-        .whenPressed(new InstantCommand(() -> hangar.engageMidHooks(), hangar));*/
 
   }
 
-  public boolean getVisionButtonStatus() {
-    return false;
-  }
   // hanger controlls
   // raise hanger to mid hooks
   // engage mid hangers

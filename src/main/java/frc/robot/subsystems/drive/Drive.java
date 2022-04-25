@@ -27,7 +27,7 @@ public class Drive extends SubsystemBase {
   // (degrees/m) of curvature error.
   private final double kP_CURVATURE_DRIVE = .005;
   private final double QUICK_TURN_THROTTLE_DEADZONE = 0.1;
-  private final double RAMP_RATE = 1;
+  private final double RAMP_RATE = .5;
   // left gear box CAN ids
   private final int LEFT_BACK_CAN_ID = 11;
   private final int LEFT_FRONT_CAN_ID = 12;
@@ -73,7 +73,8 @@ public class Drive extends SubsystemBase {
     this.gyroscope = gyroscope;
 
     this.resetEncoders();
-    this.gyroscope.resetGyro();
+    //this.gyroscope.calibrate();// ca;ibrate on field 
+    this.gyroscope.resetGyro(); 
     this.differentialDriveOdometry = new DifferentialDriveOdometry(this.gyroscope.getRotation2d());
 
     this.rightGearbox.setInverted(true);
@@ -273,5 +274,5 @@ public class Drive extends SubsystemBase {
 
   public void gyroDisabled(boolean gyroDisabled) {
     this.gyroDisabled = gyroDisabled;
-  }
+ }
 }

@@ -20,20 +20,20 @@ public class Trav extends SubsystemBase {
   private SparkMaxPIDController elevatorPIDController;
   private SparkMaxPIDController armPIDController;
   private final double CLIMBHEIGHT =
-      235; // The height arm is needs to be to attach on mid bar --Needs to be double checked
+      -50.83; // The height arm is needs to be to attach on mid bar --Needs to be double checked
   private final double RELEASEHEIGHT = 0; // where we need to be to passover to the static hooks
   private final double ARMREALEASEHEIGHT =
-      200; // where we need to be to "shoot" out the arm for next climb - find number
+      -45.57; // where we need to be to "shoot" out the arm for next climb - find number
   private final double HOOKHEIGHT =
-      318; // maybe 101.0; // where we need to be to latch on to next rung - find number
-  private final float SOFTLIMIT_REVERSE = 0;
+      -62.25; // maybe 101.0; // where we need to be to latch on to next rung - find number
+  private final float SOFTLIMIT_REVERSE = (float) -62.25;
   private final float SOFTLIMIT_FORWARD =
-      318; // Max height of the elevator --Number need to change based on trav climb
+      (float) 0.5; // Max height of the elevator --Number need to change based on trav climb
 
   // 18 for can Id
   private final float ARMNORMALPOSITION = (float) 0.5;
-  private final float ARMOUTPOSITION = (float) -1.86 * 5;
-  private final float ARMCLAMPPOSITION = (float) -7.60;
+  private final float ARMOUTPOSITION = (float) 9.6;
+  private final float ARMCLAMPPOSITION = (float) 7.60;
   private final float ARMLIMIT_REVERSE =
       (float) -100.0; // Arm start point // where arm always needs to be to start climbing
   private final float ARMLIMIT_FORWARD =
@@ -61,11 +61,15 @@ public class Trav extends SubsystemBase {
   public double elevatorkMaxOutput = 1;
   public double elevatorkMinOutput = -1;
 
-  public Trav(int elevatorMotor_canID, int OtherelevatorMotor_canID, int armMotor_canID, boolean invertElevatorMotor) {
+  public Trav(
+      int elevatorMotor_canID,
+      int OtherelevatorMotor_canID,
+      int armMotor_canID,
+      boolean invertElevatorMotor) {
     elevatorMotor = new CANSparkMax(elevatorMotor_canID, MotorType.kBrushless);
     this.elevatorMotor.setInverted(invertElevatorMotor);
     otherElevatorMotor = new CANSparkMax(OtherelevatorMotor_canID, MotorType.kBrushless);
-    otherElevatorMotor.follow(elevatorMotor, true);
+    otherElevatorMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
     elevatorMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
     elevatorMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, SOFTLIMIT_REVERSE);
     elevatorMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, SOFTLIMIT_FORWARD);
@@ -88,9 +92,10 @@ public class Trav extends SubsystemBase {
     armPIDController.setOutputRange(armkMinOutput, armkMaxOutput);
     armMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, false);
     armMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, ARMLIMIT_REVERSE);
-    armMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
+    armMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, false);
     armMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, ARMLIMIT_FORWARD);
     armMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
+    otherElevatorMotor.follow(elevatorMotor, true);
   }
 
   /** */
@@ -188,7 +193,7 @@ public class Trav extends SubsystemBase {
     // runToArmOutLineUp()), new WaitCommand(.5),  new InstantCommand(() -> runToHookHeight())/*,
     // new WaitCommand(1.0), new InstantCommand(() -> runToArmReleaseHeight())*/)); //
     // hangar.runToLineUp(), hangar // hangar.runToHookHeight(), hangar
-    Shuffleboard.getTab("Operator Controls")
+    /*Shuffleboard.getTab("Operator Controls")
         .getLayout("Hangar", BuiltInLayouts.kList)
         .withSize(4, 4)
         .add(
@@ -198,7 +203,7 @@ public class Trav extends SubsystemBase {
                 new WaitCommand(2.7),
                 new InstantCommand(
                     () ->
-                        runToArmReleaseHeight()) /*, new WaitCommand(1.0), new InstantCommand(() -> runToArmReleaseHeight())*/)); // hangar.runToLineUp(), hangar
+                        runToArmReleaseHeight()) , new WaitCommand(1.0), new InstantCommand(() -> runToArmReleaseHeight()))); // hangar.runToLineUp(), hangar
     Shuffleboard.getTab("Operator Controls")
         .getLayout("Hangar", BuiltInLayouts.kList)
         .withSize(4, 4)
@@ -207,13 +212,13 @@ public class Trav extends SubsystemBase {
             new SequentialCommandGroup(
                 new InstantCommand(
                     () ->
-                        runToReleaseHeight()))); /*, new WaitCommand(1.0), new InstantCommand(() -> runToArmReleaseHeight())*/ // hangar.runToLineUp(), hangar
+                        runToReleaseHeight()) , new WaitCommand(1.0), new InstantCommand(() -> runToArmReleaseHeight()))); // hangar.runToLineUp(), hangar
     // Shuffleboard.getTab("Operator Controls")
     //       .getLayout("Hangar", BuiltInLayouts.kList)
     //       .withSize(4, 4)
     //       .add("6.LineUp arm on next Rung", new InstantCommand(() -> this.runToArmClamp()));
     /* this last one may need to be a parrallel command, for moving arm to climb position and moving elevator down to release height */
-    Shuffleboard.getTab("Operator Controls")
+    /*Shuffleboard.getTab("Operator Controls")
         .getLayout("Hangar", BuiltInLayouts.kList)
         .withSize(4, 4)
         .add(
@@ -221,7 +226,7 @@ public class Trav extends SubsystemBase {
             new ParallelCommandGroup(
                 new InstantCommand(() -> this.runToArmStraightClimb()),
                 new InstantCommand(
-                    () -> this.runToReleaseHeight()))); // hangar.runToClimb(), hangar
+                    () -> this.runToReleaseHeight()))); // hangar.runToClimb(), hangar*/
     // Shuffleboard.getTab("Operator Controls")
     // .getLayout("Hangar", BuiltInLayouts.kList)
     // .withSize(4, 4)

@@ -100,6 +100,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+    CameraServer.startAutomaticCapture(0);
     SmartDashboard.putNumber("Auto wait", .2);
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
@@ -117,13 +118,13 @@ public class Robot extends TimedRobot {
     // NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(0);
     // NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(0);
     // this.hangar = new Hangar(10, 1, 0, 1, 2, 3);
-    this.trav = new Trav(10, 36, 18, false);
+    this.trav = new Trav(15, 10, 18, false);
     // this.lights = new Lights(9, 60, 50);
     // this.lightsController = new LightsController(this.lights, this.tofSensor/*,
     // this.limeLight*/);
     // this.tofSensor = new TOFSensor(0);
     // this.tofSensor = new TOFSensor(2);
-    this.trav.smartDashboard();
+    //this.trav.smartDashboard();
     this.operatorInputs =
         new OperatorInputs(
             driverControls, operatorControls, drive, bangArm, intake, trav /*, aimRobot*/);
@@ -263,17 +264,8 @@ public class Robot extends TimedRobot {
          this.hangarPath.getRamseteCommand()));
          //new InstantCommand(() -> hangar.runToReleaseHeight(), hangar),
          //new InstantCommand(() -> hangar.releaseFlippyHooks(), hangar),
-         //new InstantCommand(() -> hangar.engageMidHooks(), hangar));)
-    this.autoClimber =
-         new SequentialCommandGroup(
-             new InstantCommand(() -> this.hangarPath.resetOdometryToPathStart()),
-             new ParallelCommandGroup(
-                 new InstantCommand(() -> hangar.runToMidHeight()),
-                 new InstantCommand(() -> hangar.releaseMidHooks(), hangar)),
-             this.hangarPath.getRamseteCommand());
-             //new InstantCommand(() -> hangar.runToReleaseHeight(), hangar),
-             //new InstantCommand(() -> hangar.releaseFlippyHooks(), hangar),
-             //new InstantCommand(() -> hangar.engageMidHooks(), hangar));*/
+         //new InstantCommand(() -> hangar.engageMidHooks(), hangar));)*/
+    
 
     this.autonomousChooser = new SendableChooser<>();
     this.autonomousChooser.setDefaultOption("Right Side Score", this.rightSideScore);
@@ -282,10 +274,10 @@ public class Robot extends TimedRobot {
     this.autonomousChooser.addOption("Left Side Auton", this.leftSide);
     this.autonomousChooser.addOption("back up auton", this.backUp);
 
-    Shuffleboard.getTab("Operator Controls")
+   /* Shuffleboard.getTab("Operator Controls")
         .getLayout("Arm", BuiltInLayouts.kList)
         .withSize(2, 2)
-        .add("Arm move Command", new InstantCommand(() -> bangArm.toggleArmPosition(), bangArm));
+        .add("Arm move Command", new InstantCommand(() -> bangArm.toggleArmPosition(), bangArm));*/
     Shuffleboard.getTab("Operator Controls")
         .getLayout("Arm", BuiltInLayouts.kList)
         .withSize(2, 2)
@@ -315,13 +307,13 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData(this.autonomousChooser);
   }
 
-  private void updateSmartDashboardValues() {
+  /*private void updateSmartDashboardValues() {
     SmartDashboard.putNumber("right encoder value", this.drive.getRightEncoderDistance());
     SmartDashboard.putNumber("left encoder value", this.drive.getLeftEncoderDistance());
     SmartDashboard.putNumber("Arm Position", this.bangArm.getPosition());
     SmartDashboard.putNumber("gyro angle", this.gyro.getGyroAngle());
     SmartDashboard.putNumber("gyro rate", this.gyro.getRate());
-  }
+  }*/
 
   /**
    * This function is called every robot packet, no matter the mode. Use this for items like
@@ -332,8 +324,8 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-
     // SmartDashboard.putNumber("Arm Position", this.trav.getArmPosition());
+    //this.trav.getArmPosition();
     // this.updateSmartDashboardValues();
     // this.limeLight.smartDashboard();
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
@@ -345,7 +337,9 @@ public class Robot extends TimedRobot {
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    
+  }
 
   @Override
   public void disabledPeriodic() {
@@ -377,15 +371,16 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
     // this.limeLight.smartDashboard();
+    //this.trav.getArmPosition();
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    CameraServer.startAutomaticCapture();
   }
 
   /** This function is called periodically during operator control. */
